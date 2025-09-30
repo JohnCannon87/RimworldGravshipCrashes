@@ -85,6 +85,19 @@
     <Compile Include="ResourceBank.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="TraitEntry.cs" />
+    <Compile Include="GravshipCrashes\Settings\ModSettings_GravshipCrashes.cs" />
+    <Compile Include="GravshipCrashes\Settings\Mod_GravshipCrashes.cs" />
+    <Compile Include="GravshipCrashes\Util\ShipLayoutResolver.cs" />
+    <Compile Include="GravshipCrashes\Util\GravshipLayoutSpawner.cs" />
+    <Compile Include="GravshipCrashes\Util\GravshipSpawnUtility.cs" />
+    <Compile Include="GravshipCrashes\Util\GravshipCrashesDefOf.cs" />
+    <Compile Include="GravshipCrashes\Util\DefenderGen.cs" />
+    <Compile Include="GravshipCrashes\Incident\IncidentWorker_CrashedGravship.cs" />
+    <Compile Include="GravshipCrashes\Sites\SitePartWorker_CrashedGravship.cs" />
+    <Compile Include="GravshipCrashes\Sites\MapGenerator_CrashedGravship.cs" />
+    <Compile Include="GravshipCrashes\Sites\WorldObjectComp_CrashedGravship.cs" />
+    <Compile Include="GravshipCrashes\Debug\DebugActionsWorld_CrashedGravship.cs" />
+    <Compile Include="GravshipCrashes\Harmony\Patches_ReadmeIfNeeded.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GravshipCrashes\" />

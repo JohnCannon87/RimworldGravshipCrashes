@@ -1,0 +1,134 @@
+using System.Collections.Generic;
+using System.Linq;
+using RimWorld;
+using UnityEngine;
+using Verse;
+
+namespace GravshipCrashes.Settings
+{
+    /// <summary>
+    /// Stores all configurable values for the gravship crash content.
+    /// </summary>
+    public class ModSettings_GravshipCrashes : ModSettings
+    {
+        private const float MinDamage = 0f;
+        private const float MaxDamage = 1f;
+
+        public float daysBetweenCrashChecks = 3f;
+        public float incidentBaseChance = 0.4f;
+
+        public FloatRange shipStructureDamageRange = new FloatRange(0.15f, 0.45f);
+        public FloatRange thingDamageRange = new FloatRange(0.1f, 0.35f);
+        public FloatRange pawnInjurySeverityRange = new FloatRange(0.1f, 0.4f);
+
+        public int maxDefenders = 6;
+
+        public bool devEnableWorldSpawnButton = true;
+
+        private Dictionary<string, bool> shipAllowances = new Dictionary<string, bool>();
+
+        /// <summary>
+        /// Returns true if the provided ship defName is currently enabled.
+        /// </summary>
+        public bool AllowsShip(string defName)
+        {
+            if (string.IsNullOrEmpty(defName))
+            {
+                return false;
+            }
+
+            if (!shipAllowances.TryGetValue(defName, out var allowed))
+            {
+                shipAllowances[defName] = true;
+                return true;
+            }
+
+            return allowed;
+        }
+
+        /// <summary>
+        /// Sets the allowance state for a ship defName.
+        /// </summary>
+        public void SetAllowsShip(string defName, bool allowed)
+        {
+            if (string.IsNullOrEmpty(defName))
+            {
+                return;
+            }
+
+            shipAllowances[defName] = allowed;
+        }
+
+        public IEnumerable<KeyValuePair<string, bool>> ShipAllowances => shipAllowances;
+
+        public override void ExposeData()
+        {
+            Scribe_Values.Look(ref daysBetweenCrashChecks, nameof(daysBetweenCrashChecks), 3f);
+            Scribe_Values.Look(ref incidentBaseChance, nameof(incidentBaseChance), 0.4f);
+
+            Scribe_Values.Look(ref shipStructureDamageRange.min, "shipStructureDamageMin", 0.15f);
+            Scribe_Values.Look(ref shipStructureDamageRange.max, "shipStructureDamageMax", 0.45f);
+
+            Scribe_Values.Look(ref thingDamageRange.min, "thingDamageMin", 0.1f);
+            Scribe_Values.Look(ref thingDamageRange.max, "thingDamageMax", 0.35f);
+
+            Scribe_Values.Look(ref pawnInjurySeverityRange.min, "pawnInjurySeverityMin", 0.1f);
+            Scribe_Values.Look(ref pawnInjurySeverityRange.max, "pawnInjurySeverityMax", 0.4f);
+
+            Scribe_Values.Look(ref maxDefenders, nameof(maxDefenders), 6);
+            Scribe_Values.Look(ref devEnableWorldSpawnButton, nameof(devEnableWorldSpawnButton), true);
+
+            Scribe_Collections.Look(ref shipAllowances, "shipAllowances", LookMode.Value, LookMode.Value);
+
+            shipAllowances ??= new Dictionary<string, bool>();
+
+            ClampValues();
+        }
+
+        /// <summary>
+        /// Ensures settings remain within acceptable bounds.
+        /// </summary>
+        private void ClampValues()
+        {
+            daysBetweenCrashChecks = Mathf.Max(0.25f, daysBetweenCrashChecks);
+            incidentBaseChance = Mathf.Clamp01(incidentBaseChance);
+
+            shipStructureDamageRange.min = Mathf.Clamp(shipStructureDamageRange.min, MinDamage, MaxDamage);
+            shipStructureDamageRange.max = Mathf.Clamp(shipStructureDamageRange.max, shipStructureDamageRange.min, MaxDamage);
+
+            thingDamageRange.min = Mathf.Clamp(thingDamageRange.min, MinDamage, MaxDamage);
+            thingDamageRange.max = Mathf.Clamp(thingDamageRange.max, thingDamageRange.min, MaxDamage);
+
+            pawnInjurySeverityRange.min = Mathf.Clamp(pawnInjurySeverityRange.min, MinDamage, MaxDamage);
+            pawnInjurySeverityRange.max = Mathf.Clamp(pawnInjurySeverityRange.max, pawnInjurySeverityRange.min, MaxDamage);
+
+            maxDefenders = Mathf.Clamp(maxDefenders, 1, 30);
+        }
+
+        /// <summary>
+        /// Ensures the allowance table is populated for all discovered ships.
+        /// </summary>
+        public void SynchroniseShips(IEnumerable<string> defNames)
+        {
+            if (defNames == null)
+            {
+                return;
+            }
+
+            var known = defNames.ToList();
+            foreach (var defName in known)
+            {
+                if (!shipAllowances.ContainsKey(defName))
+                {
+                    shipAllowances[defName] = true;
+                }
+            }
+
+            var missing = shipAllowances.Keys.Where(key => !known.Contains(key)).ToList();
+            foreach (var removed in missing)
+            {
+                shipAllowances.Remove(removed);
+            }
+        }
+    }
+}

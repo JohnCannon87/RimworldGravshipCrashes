@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+  <FactionDef>
+    <defName>Gravship_Survivors</defName>
+    <label>gravship survivors</label>
+    <description>Desperate survivors clinging to the wreckage of their gravship. They are hostile and heavily armed.</description>
+    <factionClass>Faction</factionClass>
+    <techLevel>Spacer</techLevel>
+    <permanentEnemy>true</permanentEnemy>
+    <humanlikeFaction>true</humanlikeFaction>
+    <hidden>true</hidden>
+    <requiredCountAtGameStart>0</requiredCountAtGameStart>
+    <canMakeRandomly>false</canMakeRandomly>
+    <startingGoodwill> -75 </startingGoodwill>
+    <factionIconPath>UI/Icons/Factions/FactionPirate</factionIconPath>
+    <colorFromSpectrum>1.1</colorFromSpectrum>
+  </FactionDef>
+</Defs>
