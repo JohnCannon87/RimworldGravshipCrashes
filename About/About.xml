@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+        <name>Gravship Crashes</name>
+        <author>Arcjc007</author>
+        <packageId>Arcjc007.GravshipCrashes</packageId>
+        <supportedVersions>
+                <li>1.6</li>
+        </supportedVersions>
+        <description><![CDATA[Adds POIs to the map where Gravships from Gravship Exporter and other mods may be found crashing down.
+        ]]></description>
+        <modDependencies>
+                <li>
+                        <packageId>Arcjc007.GravshipExporter</packageId>
+                        <displayName>Gravsip Exporter</displayName>
+                        <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3576790938%5D</steamWorkshopUrl>
+                        <downloadUrl>https://github.com/JohnCannon87/RimworldCustomShipStart</downloadUrl>
+            </li>
+        </modDependencies>
+</ModMetaData>
