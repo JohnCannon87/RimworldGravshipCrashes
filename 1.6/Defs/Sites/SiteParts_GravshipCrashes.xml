@@ -1,24 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Defs>
+
+  <WorldObjectDef ParentName="StaticWorldObjectBase">
+    <defName>CrashedGravshipSite</defName>
+    <label>crashed gravship</label>
+    <description>A smouldering gravship wreck. Hostile survivors and valuable salvage are likely present.</description>
+    <worldObjectClass>Site</worldObjectClass>
+
+    <texture>World/WorldObjects/TribalSettlement</texture>
+
+    <expandingIcon>false</expandingIcon>
+    <expandingIconTexture>World/WorldObjects/Expanding/GravshipLaunchSite</expandingIconTexture>
+    <expandingIconPriority>70</expandingIconPriority>
+    <expandingIconDrawSize>1</expandingIconDrawSize>
+
+    <!-- ✅ REQUIRED when not using expandable icon, otherwise MaterialPool key is null -->
+    <expandingIconColor>(255,255,255,255)</expandingIconColor>
+
+    <canBePlayerHome>false</canBePlayerHome>
+
+    <IncidentTargetTags>
+      <li>Map_Misc</li>
+    </IncidentTargetTags>
+
+    <comps>
+      <li Class="WorldObjectCompProperties_Timeout" />
+      <li Class="GravshipCrashes.Util.WorldObjectCompProperties_CrashedGravship" />
+      <li Class="WorldObjectCompProperties_FormCaravan" />
+      <li Class="WorldObjectCompProperties_TimedDetectionRaids" />
+      <li Class="WorldObjectCompProperties_EnterCooldown" />
+    </comps>
+  </WorldObjectDef>
+
   <SitePartDef>
     <defName>CrashedGravshipSitePart</defName>
     <label>crashed gravship</label>
     <workerClass>GravshipCrashes.Sites.SitePartWorker_CrashedGravship</workerClass>
-    <wantsThreatPoints>true</wantsThreatPoints>
+    <siteTexture>World/WorldObjects/Expanding/GravshipLaunchSite</siteTexture>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <tags>
+      <li>Misc</li>
+    </tags>
   </SitePartDef>
 
-  <WorldObjectDef>
-    <defName>CrashedGravshipSite</defName>
-    <label>crashed gravship</label>
-    <description>A smouldering gravship wreck. Hostile survivors and valuable salvage are likely present.</description>
-    <class>RimWorld.Planet.Site</class>
-    <expandingIconTexture>World/WorldObjects/Site</expandingIconTexture>
-    <comps>
-      <li Class="RimWorld.Planet.WorldObjectCompProperties_Timeout" />
-      <li Class="GravshipCrashes.Util.WorldObjectCompProperties_CrashedGravship" />
-    </comps>
-    <siteParts>
-      <li>CrashedGravshipSitePart</li>
-    </siteParts>
-  </WorldObjectDef>
+
 </Defs>

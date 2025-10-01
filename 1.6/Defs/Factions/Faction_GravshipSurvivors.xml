@@ -1,18 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Defs>
+
   <FactionDef>
     <defName>Gravship_Survivors</defName>
     <label>gravship survivors</label>
     <description>Desperate survivors clinging to the wreckage of their gravship. They are hostile and heavily armed.</description>
-    <factionClass>Faction</factionClass>
+
+    <!-- Faction basics -->
+    <pawnSingular>survivor</pawnSingular>
+    <pawnsPlural>survivors</pawnsPlural>
+    <categoryTag>Spacer</categoryTag>
     <techLevel>Spacer</techLevel>
-    <permanentEnemy>true</permanentEnemy>
-    <humanlikeFaction>true</humanlikeFaction>
-    <hidden>true</hidden>
+    <factionIconPath>UI/Icons/Factions/FactionPirate</factionIconPath>
+    <colorSpectrum>
+      <li>(0.8, 0.1, 0.1)</li>
+      <li>(0.95, 0.4, 0.4)</li>
+    </colorSpectrum>
+
+    <!-- Spawn rules -->
     <requiredCountAtGameStart>0</requiredCountAtGameStart>
     <canMakeRandomly>false</canMakeRandomly>
-    <startingGoodwill> -75 </startingGoodwill>
-    <factionIconPath>UI/Icons/Factions/FactionPirate</factionIconPath>
-    <colorFromSpectrum>1.1</colorFromSpectrum>
+    <hidden>true</hidden>
+    <humanlikeFaction>true</humanlikeFaction>
+    <permanentEnemy>true</permanentEnemy>
+
+    <!-- Behavior -->
+    <canSiege>true</canSiege>
+    <canStageAttacks>true</canStageAttacks>
+    <canUseAvoidGrid>true</canUseAvoidGrid>
+
+    <!-- Backstory & ideology -->
+    <backstoryFilters>
+      <li>
+        <categories>
+          <li>Pirate</li>
+          <li>Spacer</li>
+        </categories>
+      </li>
+    </backstoryFilters>
+
+    <!-- Raid loot scaling -->
+    <raidLootValueFromPointsCurve>
+      <points>
+        <li>(100, 300)</li>
+        <li>(500, 1200)</li>
+        <li>(2000, 4000)</li>
+      </points>
+    </raidLootValueFromPointsCurve>
+
+    <!-- Optional: use spacer raid loot maker -->
+    <raidLootMaker>PirateRaidLootMaker</raidLootMaker>
+
+    <!-- ✅ Name generation rules -->
+    <factionNameMaker>NamerFactionOutlander</factionNameMaker>
+
   </FactionDef>
+
 </Defs>

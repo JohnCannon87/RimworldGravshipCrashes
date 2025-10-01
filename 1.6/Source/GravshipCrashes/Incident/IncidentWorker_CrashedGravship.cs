@@ -27,7 +27,6 @@ namespace GravshipCrashes.Incident
             if (settings != null)
             {
                 def.baseChance = Mathf.Max(0f, settings.incidentBaseChance);
-                def.mtbDays = Mathf.Max(0.1f, settings.daysBetweenCrashChecks);
             }
 
             var allowedShips = ShipLayoutResolver.AllowedShips(settings);

@@ -1,133 +1,226 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using GravshipExport; // Needed for ShipLayoutDefV2, ShipCell, ShipThingEntry
 
 namespace GravshipCrashes.Util
 {
     /// <summary>
-    /// Attempts to place ship layouts exported by the Gravship Exporter mod.
+    /// Spawns a crashed gravship from a ShipLayoutDefV2 layout.
+    /// Pass order: Foundations → Floors → Things → Roofs.
     /// </summary>
     public static class GravshipLayoutSpawner
     {
-        private static readonly Dictionary<Type, MethodInfo> PlacementMethods = new();
-
-        public static bool TrySpawnLayout(Map map, ShipLayoutResolver.ShipEntry entry, IntVec3 center, List<Thing> placedThings)
+        public static bool TrySpawnLayout(
+            Map map,
+            ShipLayoutResolver.ShipEntry entry,
+            IntVec3 center,
+            List<Thing> placedThings
+        )
         {
-            if (map == null || entry == null)
+            if (map == null)
             {
+                Log.Warning("[GravshipCrashes] [Spawner] Map is NULL.");
                 return false;
             }
 
-            var type = entry.RawDef?.GetType();
-            if (type == null)
+            if (entry?.RawDef == null)
             {
+                Log.Warning("[GravshipCrashes] [Spawner] Entry or RawDef is NULL.");
                 return false;
             }
 
-            if (!PlacementMethods.TryGetValue(type, out var placementMethod))
+            var layout = (ShipLayoutDefV2)entry.RawDef;
+            if (layout.rows == null || layout.rows.Count == 0)
             {
-                placementMethod = ResolvePlacementMethod(type);
-                PlacementMethods[type] = placementMethod;
+                Log.Warning("[GravshipCrashes] [Spawner] Layout has no rows.");
+                return false;
             }
 
-            if (placementMethod != null)
+            int halfWidth = layout.width / 2;
+            int halfHeight = layout.height / 2;
+            int spawnedCount = 0;
+            List<IntVec3> processedCells = new List<IntVec3>();
+
+            // Pass 1️⃣: Foundations (terrain)
+            for (int z = 0; z < layout.rows.Count; z++)
             {
-                try
+                var row = layout.rows[z];
+                if (row == null) continue;
+
+                for (int x = 0; x < row.Count; x++)
                 {
-                    var parameters = placementMethod.GetParameters();
-                    var args = BuildArguments(parameters, map, center, entry.RawDef);
-                    if (args != null)
+                    var cell = row[x];
+                    if (cell == null || cell.foundationDef.NullOrEmpty()) continue;
+
+                    IntVec3 pos = new IntVec3(center.x - halfWidth + x, 0, center.z - halfHeight + z);
+                    if (!pos.InBounds(map)) continue;
+
+                    SpawnFoundationAsTerrain(cell, map, pos, ref spawnedCount);
+                    processedCells.Add(pos);
+                }
+            }
+
+            // Pass 2️⃣: Floors
+            for (int z = 0; z < layout.rows.Count; z++)
+            {
+                var row = layout.rows[z];
+                if (row == null) continue;
+
+                for (int x = 0; x < row.Count; x++)
+                {
+                    var cell = row[x];
+                    if (cell == null || cell.terrainDef.NullOrEmpty()) continue;
+
+                    IntVec3 pos = new IntVec3(center.x - halfWidth + x, 0, center.z - halfHeight + z);
+                    if (!pos.InBounds(map)) continue;
+
+                    SpawnTerrain(cell, map, pos, ref spawnedCount);
+                    processedCells.Add(pos);
+                }
+            }
+
+            // Pass 3️⃣: Things
+            for (int z = 0; z < layout.rows.Count; z++)
+            {
+                var row = layout.rows[z];
+                if (row == null) continue;
+
+                for (int x = 0; x < row.Count; x++)
+                {
+                    var cell = row[x];
+                    if (cell == null || cell.things == null || cell.things.Count == 0) continue;
+
+                    IntVec3 pos = new IntVec3(center.x - halfWidth + x, 0, center.z - halfHeight + z);
+                    if (!pos.InBounds(map)) continue;
+
+                    SpawnThings(cell, map, pos, placedThings, ref spawnedCount);
+                    processedCells.Add(pos);
+                }
+            }
+
+            // Pass 4️⃣: Roofs — always build them
+            BuildRoofs(map, processedCells);
+
+            return spawnedCount > 0;
+        }
+
+        // ---------- Spawn Helpers ----------
+
+        private static void SpawnFoundationAsTerrain(ShipCell cell, Map map, IntVec3 pos, ref int spawnedCount)
+        {
+            TerrainDef terrain = DefDatabase<TerrainDef>.GetNamedSilentFail(cell.foundationDef);
+
+            if (terrain == null && cell.foundationDef.Equals("Substructure", StringComparison.OrdinalIgnoreCase))
+            {
+                terrain = TerrainDefOf.MetalTile;
+            }
+
+            if (terrain == null) return;
+
+            map.terrainGrid.SetTerrain(pos, terrain);
+            spawnedCount++;
+        }
+
+        private static void SpawnTerrain(ShipCell cell, Map map, IntVec3 pos, ref int spawnedCount)
+        {
+            TerrainDef terrain = DefDatabase<TerrainDef>.GetNamedSilentFail(cell.terrainDef);
+            if (terrain == null) return;
+
+            map.terrainGrid.SetTerrain(pos, terrain);
+            spawnedCount++;
+        }
+
+        private static void SpawnThings(ShipCell cell, Map map, IntVec3 pos, List<Thing> placedThings, ref int spawnedCount)
+        {
+            foreach (var thingEntry in cell.things)
+            {
+                if (thingEntry == null || thingEntry.defName.NullOrEmpty()) continue;
+
+                ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(thingEntry.defName);
+                if (def == null) continue;
+
+                ThingDef stuff = !thingEntry.stuffDef.NullOrEmpty()
+                    ? DefDatabase<ThingDef>.GetNamedSilentFail(thingEntry.stuffDef)
+                    : null;
+
+                Thing thing = ThingMaker.MakeThing(def, stuff);
+                Rot4 rot = new Rot4(thingEntry.rotInteger);
+                GenSpawn.Spawn(thing, pos, map, rot, WipeMode.Vanish, false);
+
+                placedThings?.Add(thing);
+                spawnedCount++;
+            }
+        }
+
+        // ---------- Roof Logic ----------
+
+        private static void BuildRoofs(Map map, List<IntVec3> cells)
+        {
+            HashSet<IntVec3> visited = new HashSet<IntVec3>();
+            Queue<IntVec3> queue = new Queue<IntVec3>();
+
+            foreach (var start in cells)
+            {
+                if (!start.InBounds(map) || visited.Contains(start)) continue;
+                if (HoldsRoof(map, start)) continue;
+
+                List<IntVec3> region = new List<IntVec3>();
+                queue.Enqueue(start);
+                visited.Add(start);
+                bool touchesEdge = false;
+
+                while (queue.Count > 0)
+                {
+                    IntVec3 c = queue.Dequeue();
+                    region.Add(c);
+
+                    if (IsMapEdge(c, map))
+                        touchesEdge = true;
+
+                    foreach (var dir in GenAdj.CardinalDirections)
                     {
-                        var result = placementMethod.Invoke(entry.RawDef, args);
-                        if (result is bool success && success)
-                        {
-                            CollectPlacedThings(map, placedThings, center, 50);
-                            return true;
-                        }
+                        IntVec3 n = c + dir;
+                        if (!n.InBounds(map) || visited.Contains(n)) continue;
+                        if (HoldsRoof(map, n)) continue;
+
+                        visited.Add(n);
+                        queue.Enqueue(n);
                     }
                 }
-                catch (Exception ex)
+
+                if (touchesEdge) continue;
+
+                foreach (var c in region)
                 {
-                    Log.Warning("[GravshipCrashes] Failed to invoke ShipLayout placement method: " + ex);
+                    if (!c.Roofed(map))
+                    {
+                        map.roofGrid.SetRoof(c, RoofDefOf.RoofConstructed);
+                    }
                 }
             }
+        }
 
+        private static bool HoldsRoof(Map map, IntVec3 c)
+        {
+            var edifice = c.GetEdifice(map);
+            if (edifice != null && (edifice.def.holdsRoof || edifice.def.passability == Traversability.Impassable))
+            {
+                return true;
+            }
             return false;
         }
 
-        private static MethodInfo ResolvePlacementMethod(Type type)
+        private static bool IsMapEdge(IntVec3 c, Map map)
         {
-            foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-            {
-                if (method.ReturnType != typeof(bool))
-                {
-                    continue;
-                }
-
-                var parameters = method.GetParameters();
-                if (parameters.Length < 2)
-                {
-                    continue;
-                }
-
-                if (parameters[0].ParameterType != typeof(Map))
-                {
-                    continue;
-                }
-
-                return method;
-            }
-
-            return null;
+            return c.x <= 0 || c.z <= 0 || c.x >= map.Size.x - 1 || c.z >= map.Size.z - 1;
         }
 
-        private static object[] BuildArguments(ParameterInfo[] parameters, Map map, IntVec3 center, object def)
-        {
-            if (parameters == null || parameters.Length == 0)
-            {
-                return null;
-            }
-
-            var args = new object[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var type = parameters[i].ParameterType;
-                if (type == typeof(Map))
-                {
-                    args[i] = map;
-                }
-                else if (type == typeof(IntVec3))
-                {
-                    args[i] = center;
-                }
-                else if (type == typeof(Rot4))
-                {
-                    args[i] = Rot4.North;
-                }
-                else if (type == typeof(bool))
-                {
-                    args[i] = true;
-                }
-                else if (type == typeof(ThingDef))
-                {
-                    args[i] = ThingDefOf.ShipChunk;
-                }
-                else if (type == def?.GetType())
-                {
-                    args[i] = def;
-                }
-                else
-                {
-                    args[i] = type.IsValueType ? Activator.CreateInstance(type) : null;
-                }
-            }
-
-            return args;
-        }
-
+        /// <summary>
+        /// Calculate the bounding rect of placed objects for post-processing.
+        /// </summary>
         public static CellRect CalculateBounds(List<Thing> placedThings, Map map)
         {
             if (placedThings == null || placedThings.Count == 0)
@@ -140,40 +233,17 @@ namespace GravshipCrashes.Util
 
             foreach (var thing in placedThings)
             {
-                if (thing == null)
-                {
-                    continue;
-                }
-
+                if (thing == null) continue;
                 min.x = Mathf.Min(min.x, thing.Position.x);
                 min.z = Mathf.Min(min.z, thing.Position.z);
                 max.x = Mathf.Max(max.x, thing.Position.x);
                 max.z = Mathf.Max(max.z, thing.Position.z);
             }
 
-            var width = Mathf.Max(10, max.x - min.x + 10);
-            var height = Mathf.Max(10, max.z - min.z + 10);
+            int width = Mathf.Max(10, max.x - min.x + 10);
+            int height = Mathf.Max(10, max.z - min.z + 10);
 
             return CellRect.CenteredOn(map.Center, width, height).ClipInsideMap(map);
-        }
-
-        private static void CollectPlacedThings(Map map, List<Thing> results, IntVec3 center, int radius)
-        {
-            if (results == null)
-            {
-                return;
-            }
-
-            var cells = GenRadial.RadialCellsAround(center, radius, true);
-            foreach (var cell in cells)
-            {
-                if (!cell.InBounds(map))
-                {
-                    continue;
-                }
-
-                results.AddRange(cell.GetThingList(map));
-            }
         }
     }
 }

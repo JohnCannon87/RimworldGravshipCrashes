@@ -1,4 +1,4 @@
-using GravshipCrashes.Util;
+﻿using GravshipCrashes.Util;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -14,29 +14,27 @@ namespace GravshipCrashes.Sites
         {
             base.PostMapGenerate(map);
 
-            if (map?.Parent is not Site site)
-            {
+            var site = map?.Parent as Site;
+            if (site == null)
                 return;
-            }
 
             var comp = site.GetComponent<WorldObjectComp_CrashedGravship>();
             ShipLayoutResolver.ShipEntry entry = null;
-            if (comp != null && ShipLayoutResolver.TryGetEntry(comp.ShipDefName, out var resolved))
+
+            if (comp != null && !string.IsNullOrEmpty(comp.ShipDefName))
             {
-                entry = resolved;
+                ShipLayoutResolver.TryGetEntry(comp.ShipDefName, out entry);
+            }
+
+            // ✅ fallback: if no layout is defined, pick one randomly
+            if (entry == null)
+            {
+                Log.Warning("[GravshipCrashes] No ShipDefName on site. Picking a random layout.");
+                entry = ShipLayoutResolver.ResolveRandomLayout();
             }
 
             MapGenerator_CrashedGravship.Generate(map, site, entry);
         }
 
-        public override void SiteRemoved(Site site)
-        {
-            base.SiteRemoved(site);
-            var comp = site.GetComponent<WorldObjectComp_CrashedGravship>();
-            if (comp != null)
-            {
-                comp.ShipDefName = string.Empty;
-            }
-        }
     }
 }

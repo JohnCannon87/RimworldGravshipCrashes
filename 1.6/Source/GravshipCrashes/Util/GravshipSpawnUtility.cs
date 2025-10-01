@@ -21,7 +21,15 @@ namespace GravshipCrashes.Util
 
         public static bool TryFindSiteTile(out int tile)
         {
-            return TileFinder.TryFindNewSiteTile(out tile, 6, 30, false, TileFinderMode.Nearby, -1);
+            PlanetTile foundTile;
+            if (TileFinder.TryFindNewSiteTile(out foundTile, 6, 30, false))
+            {
+                tile = foundTile.tileId;
+                return true;
+            }
+
+            tile = -1;
+            return false;
         }
 
         public static Site CreateSite(int tile)
@@ -37,8 +45,7 @@ namespace GravshipCrashes.Util
                 site = site,
                 parms = new SitePartParams
                 {
-                    threatPoints = 0f,
-                    pawnGroupKindDef = PawnGroupKindDefOf.Combat
+                    threatPoints = 0f
                 }
             };
 
@@ -124,7 +131,7 @@ namespace GravshipCrashes.Util
 
             if (map.weatherManager.RainRate < 0.5f)
             {
-                FireUtility.TryStartFireIn(cell, map, Rand.Range(0.1f, 0.2f));
+                FireUtility.TryStartFireIn(cell, map, Rand.Range(0.1f, 0.2f), null);
             }
         }
 
@@ -133,21 +140,26 @@ namespace GravshipCrashes.Util
             Rand.PushState(seed);
             try
             {
-                foreach (var building in map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial))
+                // Snapshot to avoid modifying collection during enumeration
+                var buildings = map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial).ToList();
+
+                foreach (var building in buildings)
                 {
-                    if (!building.def.useHitPoints || building.Destroyed)
-                    {
+                    if (building == null || building.Destroyed || building.def == null || !building.def.useHitPoints)
                         continue;
-                    }
 
                     var damageFraction = damageRange.RandomInRange;
                     if (Rand.Value < damageFraction)
                     {
-                        var hitPoints = Mathf.Max(1, Mathf.RoundToInt(building.MaxHitPoints * (1f - damageFraction)));
-                        building.HitPoints = Mathf.Clamp(hitPoints, 1, building.MaxHitPoints);
+                        // Reduce HP
+                        var hp = Mathf.Max(1, Mathf.RoundToInt(building.MaxHitPoints * (1f - damageFraction)));
+                        building.HitPoints = Mathf.Clamp(hp, 1, building.MaxHitPoints);
+
+                        // Occasional extra damage (may destroy the thing)
                         if (Rand.Value < 0.25f)
                         {
-                            building.TakeDamage(new DamageInfo(DamageDefOf.Bomb, Mathf.Max(5f, building.MaxHitPoints * damageFraction * 0.5f)));
+                            var amount = Mathf.Max(5f, building.MaxHitPoints * damageFraction * 0.5f);
+                            building.TakeDamage(new DamageInfo(DamageDefOf.Bomb, amount));
                         }
                     }
                 }
@@ -158,27 +170,32 @@ namespace GravshipCrashes.Util
             }
         }
 
+
         public static void ApplyThingDamage(Map map, FloatRange damageRange, int seed)
         {
             Rand.PushState(seed);
             try
             {
-                foreach (var thing in map.listerThings.AllThings)
-                {
-                    if (thing is Pawn || !thing.def.useHitPoints || thing.Destroyed)
-                    {
-                        continue;
-                    }
+                // Snapshot for safety; ApplyThingDamage can destroy things
+                var things = map.listerThings.AllThings.ToList();
 
-                    if (thing.def.category == ThingCategory.Building)
-                    {
-                        continue; // handled by structure damage
-                    }
+                foreach (var thing in things)
+                {
+                    if (thing == null || thing.Destroyed || thing.def == null)
+                        continue;
+
+                    if (thing is Pawn) continue;
+                    if (!thing.def.useHitPoints) continue;
+
+                    // Skip buildings: already handled by structure damage
+                    if (thing.def.category == ThingCategory.Building) continue;
 
                     var damageFraction = damageRange.RandomInRange;
                     if (Rand.Value < damageFraction)
                     {
                         thing.HitPoints = Mathf.Max(1, Mathf.RoundToInt(thing.MaxHitPoints * (1f - damageFraction)));
+
+                        // Occasionally outright destroy
                         if (Rand.Value < 0.1f)
                         {
                             thing.Destroy(DestroyMode.KillFinalize);
@@ -191,6 +208,7 @@ namespace GravshipCrashes.Util
                 Rand.PopState();
             }
         }
+
 
         public static void ScatterDebris(Map map, CellRect area, int seed)
         {
@@ -206,10 +224,10 @@ namespace GravshipCrashes.Util
                         continue;
                     }
 
-                    FilthMaker.TryMakeFilth(cell, map, ThingDefOf.FilthAsh);
+                    FilthMaker.TryMakeFilth(cell, map, ThingDefOf.Filth_Fuel);
                     if (Rand.Chance(0.35f))
                     {
-                        FireUtility.TryStartFireIn(cell, map, Rand.Range(0.05f, 0.2f));
+                        FireUtility.TryStartFireIn(cell, map, Rand.Range(0.05f, 0.2f), null);
                     }
                 }
             }
@@ -239,7 +257,7 @@ namespace GravshipCrashes.Util
                     var cell = area.RandomCell;
                     if (!cell.InBounds(map))
                     {
-                        cell = CellFinderLoose.TryFindCentralCell(map, 5f) ?? map.Center;
+                        cell = map.Center;
                     }
 
                     GenPlace.TryPlaceThing(thing, cell, map, ThingPlaceMode.Near);

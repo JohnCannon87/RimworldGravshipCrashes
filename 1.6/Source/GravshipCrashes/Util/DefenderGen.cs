@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GravshipCrashes.Settings;
 using RimWorld;
@@ -30,16 +30,16 @@ namespace GravshipCrashes.Util
                 var pawns = new List<Pawn>();
                 for (var i = 0; i < count; i++)
                 {
-                    var request = new PawnGenerationRequest(PawnKindDefOf.SpaceSoldier, faction, PawnGenerationContext.NonPlayer, map.Tile,
-                        allowDowned: false, forceGenerateNewPawn: true, canGeneratePawnRelations: false, mustBeCapableOfViolence: true,
-                        fixedGender: Gender.None, fixedIdeo: faction.ideos?.PrimaryIdeo, allowFood: false, allowPregnant: false,
-                        allowLactating: false, mustBeCapableOfViolenceIfAdult: true);
 
+                    var request = new PawnGenerationRequest(PawnKindDefOf.Pirate, faction, PawnGenerationContext.NonPlayer, map.Tile,
+                        allowDowned: false, forceGenerateNewPawn: true, canGeneratePawnRelations: false, mustBeCapableOfViolence: true,
+                        fixedIdeo: faction.ideos?.PrimaryIdeo, allowFood: false, allowPregnant: false);
+    
                     var pawn = PawnGenerator.GeneratePawn(request);
-                    PawnWeaponGenerator.TryGenerateWeaponFor(pawn);
+                    PawnWeaponGenerator.TryGenerateWeaponFor(pawn, request);
                     if (pawn.apparel == null || pawn.apparel.WornApparelCount == 0)
                     {
-                        PawnApparelGenerator.GenerateStartingApparelFor(pawn);
+                        PawnApparelGenerator.GenerateStartingApparelFor(pawn, request);
                     }
 
                     ApplyCrashInjuries(pawn, settings?.pawnInjurySeverityRange ?? new FloatRange(0.1f, 0.4f));
@@ -71,32 +71,37 @@ namespace GravshipCrashes.Util
 
         private static void ApplyCrashInjuries(Pawn pawn, FloatRange severity)
         {
-            if (pawn == null)
-            {
-                return;
-            }
+            if (pawn == null) return;
 
-            var injuryFraction = Mathf.Clamp01(severity.RandomInRange);
-            if (injuryFraction <= 0f)
-            {
-                return;
-            }
+            float injuryFraction = Mathf.Clamp01(severity.RandomInRange);
+            if (injuryFraction <= 0f) return;
 
-            var bodyParts = pawn.health.hediffSet.GetNotMissingParts().Where(p => p.depth == BodyPartDepth.Outside).ToList();
-            if (bodyParts.Count == 0)
-            {
-                return;
-            }
+            // ✅ Just call the built-in utility — it will pick injuries and stop before death.
+            // The severity multiplier just makes it more likely to add a few extra injuries.
+            int extraInjuries = Mathf.RoundToInt(Mathf.Lerp(1, 4, injuryFraction));
 
-            var injuries = Rand.RangeInclusive(1, 4);
-            for (var i = 0; i < injuries; i++)
+            // Base: do a normal "crash-style" injury pass
+            HealthUtility.DamageUntilDowned(pawn, allowBleedingWounds: true);
+
+            // Optional: add a few small extra wounds for variety
+            for (int i = 0; i < extraInjuries; i++)
             {
-                var part = bodyParts.RandomElement();
-                var hediff = HediffMaker.MakeHediff(HediffDefOf.Bruise, pawn, part);
-                hediff.Severity = Mathf.Clamp(injuryFraction * Rand.Range(0.4f, 1.1f), 0.05f, 0.8f);
-                pawn.health.AddHediff(hediff);
+                var part = pawn.health.hediffSet
+                    .GetNotMissingParts()
+                    .Where(p => p.depth == BodyPartDepth.Outside)
+                    .InRandomOrder()
+                    .FirstOrDefault();
+
+                if (part != null)
+                {
+                    var hediff = HediffMaker.MakeHediff(HediffDefOf.Cut, pawn, part);
+                    hediff.Severity = Rand.Range(0.05f, 0.2f) * injuryFraction;
+                    pawn.health.AddHediff(hediff);
+                }
             }
         }
+
+
 
         private static Faction EnsureFaction()
         {
@@ -114,7 +119,7 @@ namespace GravshipCrashes.Util
             cachedFaction = Find.FactionManager.FirstFactionOfDef(def);
             if (cachedFaction == null)
             {
-                cachedFaction = FactionGenerator.NewGeneratedFaction(def);
+                cachedFaction = FactionGenerator.NewGeneratedFaction(new FactionGeneratorParms(def));
                 cachedFaction.hidden = true;
                 Find.FactionManager.Add(cachedFaction);
             }

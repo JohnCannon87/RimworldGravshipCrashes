@@ -80,7 +80,10 @@ namespace GravshipCrashes.Settings
 
             Scribe_Collections.Look(ref shipAllowances, "shipAllowances", LookMode.Value, LookMode.Value);
 
-            shipAllowances ??= new Dictionary<string, bool>();
+            if (shipAllowances == null)
+            {
+                shipAllowances = new Dictionary<string, bool>();
+            }
 
             ClampValues();
         }

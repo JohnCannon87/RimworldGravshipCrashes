@@ -14,7 +14,7 @@ namespace GravshipCrashes.Util
     /// </summary>
     public static class ShipLayoutResolver
     {
-        private const string LayoutTypeName = "ShipLayoutDefV2";
+        private const string LayoutTypeName = "GravshipExport.ShipLayoutDefV2";
         private static Type shipLayoutType;
         private static readonly List<ShipEntry> allShips = new List<ShipEntry>();
         private static bool missingExporterWarningPrinted;
@@ -71,10 +71,16 @@ namespace GravshipCrashes.Util
                     {
                         if (obj is Def def)
                         {
+                            var label = def.LabelCap;
+                            if (label.NullOrEmpty())
+                            {
+                                label = def.label;
+                            }
+
                             var entry = new ShipEntry
                             {
                                 DefName = def.defName,
-                                Label = def.LabelCap.NullOrEmpty() ? def.label : def.LabelCap,
+                                Label = label,
                                 SourceMod = def.modContentPack?.Name ?? string.Empty,
                                 Def = def,
                                 RawDef = obj
@@ -101,6 +107,23 @@ namespace GravshipCrashes.Util
         public static void NotifySettingsChanged()
         {
             missingExporterWarningPrinted = false;
+        }
+
+        public static ShipEntry ResolveRandomLayout()
+        {
+            // Ensure we've tried to populate the list
+            RefreshIfNeeded();
+
+            if (allShips.Count == 0)
+            {
+                Log.Warning("[GravshipCrashes] ResolveRandomLayout() called but no ship layouts were found. " +
+                            "This usually means the Gravship Exporter mod is not installed or no ShipLayoutDefV2 defs are loaded.");
+                return null;
+            }
+
+            var chosen = allShips.RandomElement();
+            Log.Message($"[GravshipCrashes] Randomly selected ship layout: {chosen.DefName} ({chosen.Label})");
+            return chosen;
         }
 
         public static bool TryGetEntry(string defName, out ShipEntry entry)

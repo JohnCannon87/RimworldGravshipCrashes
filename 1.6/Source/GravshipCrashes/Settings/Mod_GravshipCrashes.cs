@@ -22,8 +22,6 @@ namespace GravshipCrashes.Settings
         {
             Instance = this;
             Settings = GetSettings<ModSettings_GravshipCrashes>();
-            ShipLayoutResolver.RefreshIfNeeded();
-            Settings.SynchroniseShips(ShipLayoutResolver.AllShipsDefNames);
         }
 
         public override string SettingsCategory()

@@ -16,5 +16,4 @@
                         <downloadUrl>https://github.com/JohnCannon87/RimworldCustomShipStart</downloadUrl>
             </li>
         </modDependencies>
-        <modClass>GravshipCrashes.Settings.Mod_GravshipCrashes</modClass>
 </ModMetaData>

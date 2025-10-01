@@ -59,6 +59,9 @@
       <HintPath>D:\Games\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="GravshipExport">
+      <HintPath>..\..\..\RimworldGravshipExport\1.6\Assemblies\GravshipExport.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -81,10 +84,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="MapComponent_Overlay.cs" />
-    <Compile Include="ResourceBank.cs" />
-    <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="TraitEntry.cs" />
+    <Compile Include="GravshipCrashes\Debug\DebugActions_Gravship.cs" />
+    <Compile Include="GravshipCrashes\Settings\GravshipCrashes_Startup.cs" />
     <Compile Include="GravshipCrashes\Settings\ModSettings_GravshipCrashes.cs" />
     <Compile Include="GravshipCrashes\Settings\Mod_GravshipCrashes.cs" />
     <Compile Include="GravshipCrashes\Util\ShipLayoutResolver.cs" />
@@ -96,11 +97,9 @@
     <Compile Include="GravshipCrashes\Sites\SitePartWorker_CrashedGravship.cs" />
     <Compile Include="GravshipCrashes\Sites\MapGenerator_CrashedGravship.cs" />
     <Compile Include="GravshipCrashes\Sites\WorldObjectComp_CrashedGravship.cs" />
-    <Compile Include="GravshipCrashes\Debug\DebugActionsWorld_CrashedGravship.cs" />
     <Compile Include="GravshipCrashes\Harmony\Patches_ReadmeIfNeeded.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="GravshipCrashes\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -118,7 +117,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_StartDate="2000/1/1" BuildVersion_BuildVersioningStyle="None.None.Increment.TimeStamp" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
+      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.TimeStamp" BuildVersion_StartDate="2000/1/1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
