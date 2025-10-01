@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+  <IncidentDef>
+    <defName>CrashedGravshipIncident</defName>
+    <label>crashed gravship</label>
+    <category>Misc</category>
+    <target>World</target>
+    <workerClass>GravshipCrashes.Incident.IncidentWorker_CrashedGravship</workerClass>
+    <baseChance>0.4</baseChance>
+    <mtbDays>3</mtbDays>
+    <letterLabel>Crashed gravship spotted</letterLabel>
+    <letterText>A gravship has crashed nearby, scattering debris, survivors, and potential salvage. You can send a caravan to investigate before the crash site is picked clean.</letterText>
+    <letterDef>PositiveEvent</letterDef>
+  </IncidentDef>
+</Defs>

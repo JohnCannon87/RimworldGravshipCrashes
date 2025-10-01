@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+  <SitePartDef>
+    <defName>CrashedGravshipSitePart</defName>
+    <label>crashed gravship</label>
+    <workerClass>GravshipCrashes.Sites.SitePartWorker_CrashedGravship</workerClass>
+    <wantsThreatPoints>true</wantsThreatPoints>
+  </SitePartDef>
+
+  <WorldObjectDef>
+    <defName>CrashedGravshipSite</defName>
+    <label>crashed gravship</label>
+    <description>A smouldering gravship wreck. Hostile survivors and valuable salvage are likely present.</description>
+    <class>RimWorld.Planet.Site</class>
+    <expandingIconTexture>World/WorldObjects/Site</expandingIconTexture>
+    <comps>
+      <li Class="RimWorld.Planet.WorldObjectCompProperties_Timeout" />
+      <li Class="GravshipCrashes.Util.WorldObjectCompProperties_CrashedGravship" />
+    </comps>
+    <siteParts>
+      <li>CrashedGravshipSitePart</li>
+    </siteParts>
+  </WorldObjectDef>
+</Defs>
