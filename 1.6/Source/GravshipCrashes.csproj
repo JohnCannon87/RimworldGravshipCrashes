@@ -50,11 +50,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-    <Reference Include="0Harmony, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Lib.Harmony.2.4.1\lib\net472\0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\Games\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -86,10 +81,9 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="GravshipCrashes\Debug\DebugActions_Gravship.cs" />
-    <Compile Include="GravshipCrashes\Settings\GravshipCrashes_Startup.cs" />
+    <Compile Include="GravshipCrashes\Debug\GravshipDebugUtil.cs" />
     <Compile Include="GravshipCrashes\Settings\ModSettings_GravshipCrashes.cs" />
     <Compile Include="GravshipCrashes\Settings\Mod_GravshipCrashes.cs" />
-    <Compile Include="GravshipCrashes\Util\ShipLayoutResolver.cs" />
     <Compile Include="GravshipCrashes\Util\GravshipLayoutSpawner.cs" />
     <Compile Include="GravshipCrashes\Util\GravshipSpawnUtility.cs" />
     <Compile Include="GravshipCrashes\Util\GravshipCrashesDefOf.cs" />
@@ -98,7 +92,7 @@
     <Compile Include="GravshipCrashes\Sites\SitePartWorker_CrashedGravship.cs" />
     <Compile Include="GravshipCrashes\Sites\MapGenerator_CrashedGravship.cs" />
     <Compile Include="GravshipCrashes\Sites\WorldObjectComp_CrashedGravship.cs" />
-    <Compile Include="GravshipCrashes\Harmony\Patches_ReadmeIfNeeded.cs" />
+    <Compile Include="GravshipCrashes\Util\ShipLayouts.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

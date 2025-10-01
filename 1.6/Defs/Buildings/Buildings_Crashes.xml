@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>BrokenGravEngine</defName>
+    <label>broken grav engine</label>
+    <description>The ultratech heart of a gravship. Failing to beat, damaged beyond repair all that can be salvaged now is some raw materials and the faded dreams of it's crew.</description>
+    <drawerType>RealtimeOnly</drawerType>
+    <tickerType>Normal</tickerType>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/BrokenGravEngine</texPath>
+      <drawSize>(3,3)</drawSize>
+      <addTopAltitudeBias>true</addTopAltitudeBias>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <Mass>15</Mass>
+      <MarketValue>200</MarketValue>
+    </statBases>
+    <costList>
+      <GravlitePanel>35</GravlitePanel>
+      <ComponentIndustrial>1</ComponentIndustrial>
+      <Steel>80</Steel>
+    </costList>
+    <size>(3,3)</size>
+    <castEdgeShadows>true</castEdgeShadows>
+    <fillPercent>0.6</fillPercent>
+    <passability>PassThroughOnly</passability>
+    <pathCost>20</pathCost>
+    <canOverlapZones>false</canOverlapZones>
+    <building>
+      <ai_neverTrashThis>true</ai_neverTrashThis>
+      <deconstructible>true</deconstructible>
+    </building>
+    <comps>
+    </comps>
+  </ThingDef>
+
+</Defs>

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using GravshipCrashes.Settings;
-using GravshipCrashes.Sites;
 using GravshipCrashes.Util;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using GravshipExport; // for ShipLayoutDefV2
 
 namespace GravshipCrashes.Incident
 {
@@ -16,46 +17,47 @@ namespace GravshipCrashes.Incident
     {
         protected override bool CanFireNowSub(IncidentParms parms)
         {
-            ShipLayoutResolver.RefreshIfNeeded();
-
-            if (!ShipLayoutResolver.HasExporterContent)
-            {
+            // Hard dependency: if no layouts exist, we can't fire.
+            if (ShipLayouts.All == null || ShipLayouts.All.Count == 0)
                 return false;
-            }
 
             var settings = Mod_GravshipCrashes.Instance?.Settings;
             if (settings != null)
-            {
                 def.baseChance = Mathf.Max(0f, settings.incidentBaseChance);
-            }
 
-            var allowedShips = ShipLayoutResolver.AllowedShips(settings);
+            // Any allowed ship?
+            // (Allowed returns IEnumerable; ToList keeps it simple for Count)
+            var allowedShips = ShipLayouts.Allowed(settings).ToList();
             return allowedShips.Count > 0;
         }
 
         protected override bool TryExecuteWorker(IncidentParms parms)
         {
             var settings = Mod_GravshipCrashes.Instance?.Settings;
-            var allowedShips = ShipLayoutResolver.AllowedShips(settings);
+            var allowedShips = ShipLayouts.Allowed(settings).ToList();
             if (allowedShips.Count == 0)
-            {
                 return false;
-            }
 
-            if (!GravshipSpawnUtility.TryFindSiteTile(out var tile))
-            {
+            int tile;
+            if (!GravshipSpawnUtility.TryFindSiteTile(out tile))
                 return false;
-            }
 
-            var shipEntry = allowedShips.RandomElement();
+            // Pick a layout and create the site
+            ShipLayoutDefV2 chosen = allowedShips.RandomElement();
             var site = GravshipSpawnUtility.CreateSite(tile);
-            GravshipSpawnUtility.ConfigureSiteMetadata(site, shipEntry);
+
+            // Store defName on the site comp; seeds handled inside
+            GravshipSpawnUtility.ConfigureSiteMetadata(site, chosen.defName);
+
+            // Timeout & add to world
             GravshipSpawnUtility.ConfigureTimeout(site, new IntRange(12, 20));
             Find.WorldObjects.Add(site);
 
-            var letterLabel = "Crashed Gravship";
-            var letterText = "A gravship has crashed nearby, spilling survivors and salvage across the landscape.";
+            // Notify player
+            string letterLabel = "Crashed Gravship";
+            string letterText = "A hostile gravship has crashed nearby, the survivors will eventually rebuild and leave but until then they will defend their ship with their lives.".Translate();
             SendStandardLetter(letterLabel, letterText, LetterDefOf.PositiveEvent, parms, site);
+
             return true;
         }
     }

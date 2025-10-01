@@ -14,7 +14,6 @@ namespace GravshipCrashes.Settings
         private const float MinDamage = 0f;
         private const float MaxDamage = 1f;
 
-        public float daysBetweenCrashChecks = 3f;
         public float incidentBaseChance = 0.4f;
 
         public FloatRange shipStructureDamageRange = new FloatRange(0.15f, 0.45f);
@@ -23,7 +22,7 @@ namespace GravshipCrashes.Settings
 
         public int maxDefenders = 6;
 
-        public bool devEnableWorldSpawnButton = true;
+        public bool debugLogging = false;
 
         private Dictionary<string, bool> shipAllowances = new Dictionary<string, bool>();
 
@@ -63,7 +62,6 @@ namespace GravshipCrashes.Settings
 
         public override void ExposeData()
         {
-            Scribe_Values.Look(ref daysBetweenCrashChecks, nameof(daysBetweenCrashChecks), 3f);
             Scribe_Values.Look(ref incidentBaseChance, nameof(incidentBaseChance), 0.4f);
 
             Scribe_Values.Look(ref shipStructureDamageRange.min, "shipStructureDamageMin", 0.15f);
@@ -76,7 +74,7 @@ namespace GravshipCrashes.Settings
             Scribe_Values.Look(ref pawnInjurySeverityRange.max, "pawnInjurySeverityMax", 0.4f);
 
             Scribe_Values.Look(ref maxDefenders, nameof(maxDefenders), 6);
-            Scribe_Values.Look(ref devEnableWorldSpawnButton, nameof(devEnableWorldSpawnButton), true);
+            Scribe_Values.Look(ref debugLogging, nameof(debugLogging), true);
 
             Scribe_Collections.Look(ref shipAllowances, "shipAllowances", LookMode.Value, LookMode.Value);
 
@@ -93,7 +91,6 @@ namespace GravshipCrashes.Settings
         /// </summary>
         private void ClampValues()
         {
-            daysBetweenCrashChecks = Mathf.Max(0.25f, daysBetweenCrashChecks);
             incidentBaseChance = Mathf.Clamp01(incidentBaseChance);
 
             shipStructureDamageRange.min = Mathf.Clamp(shipStructureDamageRange.min, MinDamage, MaxDamage);

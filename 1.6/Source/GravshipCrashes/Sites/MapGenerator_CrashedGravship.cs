@@ -1,10 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GravshipCrashes.Settings;
 using GravshipCrashes.Util;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using GravshipExport; // ShipLayoutDefV2
 
 namespace GravshipCrashes.Sites
 {
@@ -13,90 +14,91 @@ namespace GravshipCrashes.Sites
     /// </summary>
     public static class MapGenerator_CrashedGravship
     {
-        public static void Generate(Map map, Site site, ShipLayoutResolver.ShipEntry shipEntry)
+        public static void Generate(Map map, Site site, ShipLayoutDefV2 layout)
         {
-            Log.Message("[GravshipCrashes] Generate() called.");
+            GravshipDebugUtil.LogMessage("[Generator] Generate() called.");
 
             if (map == null)
             {
-                Log.Error("[GravshipCrashes] Map is NULL!");
+                GravshipDebugUtil.LogError("[Generator] Map is NULL!");
                 return;
             }
 
             if (site == null)
             {
-                Log.Warning("[GravshipCrashes] Site is NULL!");
+                GravshipDebugUtil.LogWarning("[Generator] Site is NULL!");
             }
 
-            if (shipEntry == null)
+            if (layout == null)
             {
-                Log.Warning("[GravshipCrashes] shipEntry is NULL - fallback hull will be used.");
+                GravshipDebugUtil.LogWarning("[Generator] layout is NULL - fallback hull will be used.");
             }
             else
             {
-                Log.Message($"[GravshipCrashes] shipEntry: {shipEntry.Def.defName}");
+                GravshipDebugUtil.LogMessage(string.Format("[Generator] layout: {0}", layout.defName));
             }
 
-            var settings = Mod_GravshipCrashes.Instance?.Settings;
-            if (settings == null)
-            {
-                Log.Warning("[GravshipCrashes] Settings is NULL - using default ranges.");
-            }
-
-            var comp = site?.GetComponent<WorldObjectComp_CrashedGravship>();
-            if (comp == null)
-            {
-                Log.Warning("[GravshipCrashes] WorldObjectComp_CrashedGravship is NULL - damage seeds may be random.");
-            }
+            var settings = Mod_GravshipCrashes.Instance != null ? Mod_GravshipCrashes.Instance.Settings : null;
+            var comp = site != null ? site.GetComponent<WorldObjectComp_CrashedGravship>() : null;
 
             var usedRect = CellRect.CenteredOn(map.Center, 30, 30);
             var placedThings = new List<Thing>();
 
-            Log.Message("[GravshipCrashes] Attempting to spawn ship layout...");
+            GravshipDebugUtil.LogMessage("[Generator] Attempting to spawn ship layout...");
 
             bool spawnedLayout = false;
-            if (shipEntry != null)
+            if (layout != null)
             {
-                spawnedLayout = GravshipLayoutSpawner.TrySpawnLayout(map, shipEntry, usedRect.CenterCell, placedThings);
-                Log.Message($"[GravshipCrashes] TrySpawnLayout returned: {spawnedLayout} (Placed {placedThings.Count} things)");
+                spawnedLayout = GravshipLayoutSpawner.TrySpawnLayout(map, layout, usedRect.CenterCell, placedThings);
+                GravshipDebugUtil.LogMessage(string.Format(
+                    "[Generator] TrySpawnLayout returned: {0} (Placed {1} things)", spawnedLayout, placedThings.Count));
             }
 
             if (spawnedLayout)
             {
                 usedRect = GravshipLayoutSpawner.CalculateBounds(placedThings, map);
-                Log.Message($"[GravshipCrashes] Calculated usedRect: {usedRect}");
+                GravshipDebugUtil.LogMessage(string.Format("[Generator] Calculated usedRect: {0}", usedRect));
             }
             else
             {
-                Log.Warning("[GravshipCrashes] Ship layout spawn failed. Using fallback hull.");
+                GravshipDebugUtil.LogWarning("[Generator] Ship layout spawn failed. Using fallback hull.");
                 GenerateFallbackHull(map, usedRect);
             }
 
-            Log.Message("[GravshipCrashes] Removing grav engines...");
-            GravshipSpawnUtility.RemoveGravEngines(map, usedRect.Cells);
+            GravshipDebugUtil.LogMessage("[Generator] Removing grav engines...");
+            GravshipSpawnUtility.RemoveGravEngines(map, usedRect.Cells); // harmless if none exist
 
-            Log.Message("[GravshipCrashes] Applying structure damage...");
-            GravshipSpawnUtility.ApplyStructureDamage(map, settings?.shipStructureDamageRange ?? new FloatRange(0.15f, 0.45f), comp?.StructureDamageSeed ?? Rand.Int);
+            GravshipDebugUtil.LogMessage("[Generator] Applying structure damage...");
+            GravshipSpawnUtility.ApplyStructureDamage(
+                map,
+                settings != null ? settings.shipStructureDamageRange : new FloatRange(0.15f, 0.45f),
+                comp != null ? comp.StructureDamageSeed : Rand.Int);
 
-            Log.Message("[GravshipCrashes] Applying thing damage...");
-            GravshipSpawnUtility.ApplyThingDamage(map, settings?.thingDamageRange ?? new FloatRange(0.1f, 0.35f), comp?.ThingDamageSeed ?? Rand.Int);
+            GravshipDebugUtil.LogMessage("[Generator] Applying thing damage...");
+            GravshipSpawnUtility.ApplyThingDamage(
+                map,
+                settings != null ? settings.thingDamageRange : new FloatRange(0.1f, 0.35f),
+                comp != null ? comp.ThingDamageSeed : Rand.Int);
 
-            Log.Message("[GravshipCrashes] Scattering debris...");
-            GravshipSpawnUtility.ScatterDebris(map, usedRect, comp?.StructureDamageSeed ?? Rand.Int);
+            GravshipDebugUtil.LogMessage("[Generator] Scattering debris...");
+            GravshipSpawnUtility.ScatterDebris(
+                map, usedRect, comp != null ? comp.StructureDamageSeed : Rand.Int);
 
-            Log.Message("[GravshipCrashes] Spawning loot...");
-            GravshipSpawnUtility.SpawnLoot(map, usedRect, comp?.LootSeed ?? Rand.Int);
+            GravshipDebugUtil.LogMessage("[Generator] Spawning loot...");
+            GravshipSpawnUtility.SpawnLoot(
+                map, usedRect, comp != null ? comp.LootSeed : Rand.Int);
 
-            Log.Message("[GravshipCrashes] Spawning defenders...");
+            GravshipDebugUtil.LogMessage("[Generator] Spawning defenders...");
             DefenderGen.SpawnDefenders(map, usedRect, settings);
 
-            Log.Message("[GravshipCrashes] Generate() finished.");
+            GravshipDebugUtil.LogMessage("[Generator] Generate() finished.");
         }
 
         private static void GenerateFallbackHull(Map map, CellRect rect)
         {
-            Log.Message("[GravshipCrashes] Generating fallback hull...");
+            GravshipDebugUtil.LogMessage("[Generator] Generating fallback hull...");
             rect = rect.ClipInsideMap(map);
+
             foreach (var cell in rect.EdgeCells)
             {
                 var wall = ThingMaker.MakeThing(ThingDefOf.Wall, ThingDefOf.Plasteel);
@@ -111,13 +113,13 @@ namespace GravshipCrashes.Sites
 
                 if (Rand.Chance(0.2f))
                 {
-                    var floor = TerrainDefOf.MetalTile;
-                    map.terrainGrid.SetTerrain(cell, floor);
+                    map.terrainGrid.SetTerrain(cell, TerrainDefOf.MetalTile);
                     floorCount++;
                 }
             }
 
-            Log.Message($"[GravshipCrashes] Fallback hull generation complete. Placed floor on {floorCount} cells.");
+            GravshipDebugUtil.LogMessage(string.Format(
+                "[Generator] Fallback hull generation complete. Placed floor on {0} cells.", floorCount));
         }
     }
 }

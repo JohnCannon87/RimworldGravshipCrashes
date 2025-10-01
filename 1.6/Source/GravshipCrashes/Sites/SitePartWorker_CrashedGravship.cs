@@ -2,6 +2,8 @@
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
+using GravshipExport; // ShipLayoutDefV2
+using GravshipCrashes.Settings;
 
 namespace GravshipCrashes.Sites
 {
@@ -14,27 +16,37 @@ namespace GravshipCrashes.Sites
         {
             base.PostMapGenerate(map);
 
-            var site = map?.Parent as Site;
+            var site = map != null ? map.Parent as Site : null;
             if (site == null)
+            {
+                GravshipDebugUtil.LogWarning("PostMapGenerate called but site is NULL.");
                 return;
+            }
 
             var comp = site.GetComponent<WorldObjectComp_CrashedGravship>();
-            ShipLayoutResolver.ShipEntry entry = null;
+            ShipLayoutDefV2 layout = null;
 
             if (comp != null && !string.IsNullOrEmpty(comp.ShipDefName))
             {
-                ShipLayoutResolver.TryGetEntry(comp.ShipDefName, out entry);
+                GravshipDebugUtil.LogMessage(string.Format("Resolved ShipDefName from site: {0}", comp.ShipDefName));
+                layout = ShipLayouts.Get(comp.ShipDefName);
+                if (layout == null)
+                {
+                    GravshipDebugUtil.LogWarning(string.Format("ShipLayouts.Get could not find '{0}'.", comp.ShipDefName));
+                }
             }
 
-            // ✅ fallback: if no layout is defined, pick one randomly
-            if (entry == null)
+            if (layout == null)
             {
-                Log.Warning("[GravshipCrashes] No ShipDefName on site. Picking a random layout.");
-                entry = ShipLayoutResolver.ResolveRandomLayout();
+                GravshipDebugUtil.LogWarning("No ShipLayout on site. Picking a random layout.");
+                var settings = Mod_GravshipCrashes.Instance != null ? Mod_GravshipCrashes.Instance.Settings : null;
+                layout = ShipLayouts.GetRandomAllowed(settings);
+                if (layout == null) layout = ShipLayouts.GetRandom();
             }
 
-            MapGenerator_CrashedGravship.Generate(map, site, entry);
+            GravshipDebugUtil.LogMessage("Beginning crashed gravship map generation...");
+            MapGenerator_CrashedGravship.Generate(map, site, layout);
+            GravshipDebugUtil.LogMessage("Map generation completed successfully.");
         }
-
     }
 }
