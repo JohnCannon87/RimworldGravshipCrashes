@@ -7,10 +7,10 @@
     <description>A smouldering gravship wreck. Hostile survivors and valuable salvage are likely present.</description>
     <worldObjectClass>Site</worldObjectClass>
 
-    <texture>World/WorldObjects/TribalSettlement</texture>
+    <texture>World/WorldObjects/Sites/GravshipCrash</texture>
 
-    <expandingIcon>false</expandingIcon>
-    <expandingIconTexture>World/WorldObjects/Expanding/GravshipLaunchSite</expandingIconTexture>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/WorldObjects/Expanding/GravshipCrashExpanding</expandingIconTexture>
     <expandingIconPriority>70</expandingIconPriority>
     <expandingIconDrawSize>1</expandingIconDrawSize>
 
@@ -36,7 +36,8 @@
     <defName>CrashedGravshipSitePart</defName>
     <label>crashed gravship</label>
     <workerClass>GravshipCrashes.Sites.SitePartWorker_CrashedGravship</workerClass>
-    <siteTexture>World/WorldObjects/Expanding/GravshipLaunchSite</siteTexture>
+    <siteTexture>World/WorldObjects/Sites/GravshipCrash</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/GravshipCrashExpanding</expandingIconTexture>
     <gravShipsCanLandOn>true</gravShipsCanLandOn>
     <tags>
       <li>Misc</li>
