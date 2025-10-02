@@ -5,21 +5,14 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.AI.Group;
-using GravshipExport; // for ShipLayoutDefV2
+using GravshipExport;
 
 namespace GravshipCrashes.Util
 {
-    /// <summary>
-    /// Spawns defender pawns for the crashed gravship site.
-    /// </summary>
     public static class DefenderGen
     {
         private static Faction cachedFaction;
 
-        /// <summary>
-        /// Spawns defender pawns and returns them. 
-        /// Counts defenders based on ship layout: 1 per bed, fallback seat, fallback 1 per 20 cells.
-        /// </summary>
         public static List<Pawn> SpawnDefenders(
             Map map,
             CellRect area,
@@ -38,9 +31,7 @@ namespace GravshipCrashes.Util
                 return new List<Pawn>();
             }
 
-            // ✅ Determine defender count based on layout
             int defenderCount = CalculateDefenderCountFromLayout(layout, settings);
-
             GravshipDebugUtil.LogMessage($"[Defenders] Final defender count: {defenderCount}");
 
             var pawns = new List<Pawn>();
@@ -63,13 +54,12 @@ namespace GravshipCrashes.Util
                         allowFood: true,
                         allowPregnant: true,
                         allowAddictions: true,
-                        forceNoBackstory: false,                // ✅ let the generator handle stories
+                        forceNoBackstory: false,
                         onlyUseForcedBackstories: false
                     );
 
-                    Pawn pawn = PawnGenerator.GeneratePawn(request);
+                    var pawn = PawnGenerator.GeneratePawn(request);
 
-                    // ✅ Double-ensure they belong to the correct hostile faction
                     if (pawn.Faction != faction)
                         pawn.SetFaction(faction);
 
@@ -102,7 +92,6 @@ namespace GravshipCrashes.Util
             return pawns;
         }
 
-        // 🔥 New: Calculate defender count from ship layout
         private static int CalculateDefenderCountFromLayout(ShipLayoutDefV2 layout, ModSettings_GravshipCrashes settings)
         {
             if (layout == null)
@@ -111,7 +100,6 @@ namespace GravshipCrashes.Util
                 return 4;
             }
 
-            // Flatten all thing entries in layout
             var allThings = layout.rows
                 .Where(r => r != null)
                 .SelectMany(r => r)
@@ -119,7 +107,6 @@ namespace GravshipCrashes.Util
                 .SelectMany(c => c.things)
                 .ToList();
 
-            // 1️⃣ Beds
             int bedCount = allThings.Count(t => t.defName.ToLowerInvariant().Contains("bed"));
             if (bedCount > 0)
             {
@@ -127,7 +114,6 @@ namespace GravshipCrashes.Util
                 return bedCount;
             }
 
-            // 2️⃣ Seats (chairs, benches, etc.)
             int seatCount = allThings.Count(t =>
                 t.defName.ToLowerInvariant().Contains("chair") ||
                 t.defName.ToLowerInvariant().Contains("seat") ||
@@ -138,7 +124,6 @@ namespace GravshipCrashes.Util
                 return seatCount;
             }
 
-            // 3️⃣ Fallback: 1 pawn per 20 cells
             int areaCells = layout.width * layout.height;
             int fallbackCount = Mathf.Max(1, areaCells / 20);
             GravshipDebugUtil.LogMessage($"[Defenders] Defender count from ship size ({areaCells} cells): {fallbackCount}");
@@ -149,9 +134,7 @@ namespace GravshipCrashes.Util
         {
             if (pawn == null) return;
 
-            float injuryFraction = Mathf.Clamp01(severity.RandomInRange);
-            if (injuryFraction <= 0f) return;
-
+            float injuryFraction = Mathf.Max(0.05f, severity.RandomInRange); // 👈 never below 5%
             int injuryCount = Rand.RangeInclusive(1, 3);
             GravshipDebugUtil.LogMessage($"Applying light crash injuries to {pawn.LabelShortCap} (severity {injuryFraction:P0}, injuries: {injuryCount})");
 
@@ -164,7 +147,6 @@ namespace GravshipCrashes.Util
                     .Where(p => !p.def.conceptual && p.coverageAbs > 0f)
                     .InRandomOrder()
                     .FirstOrDefault();
-
 
                 if (part != null)
                 {
@@ -194,15 +176,21 @@ namespace GravshipCrashes.Util
 
             var vacSuitDefs = DefDatabase<ThingDef>.AllDefs
                 .Where(td => td.IsApparel && td.defName.ToLower().Contains("vacsuit"))
-                .Where(td => ApparelUtility.HasPartsToWear(pawn, td)) // ✅ pawn can wear
+                .Where(td => !td.defName.ToLower().Contains("children")) // 👈 filter out child suits
+                .Where(td => ApparelUtility.HasPartsToWear(pawn, td))
                 .InRandomOrder()
                 .Take(3)
                 .ToList();
 
-
             foreach (var apparelDef in vacSuitDefs)
             {
                 var apparel = ThingMaker.MakeThing(apparelDef);
+                if (!pawn.apparel.CanWearWithoutDroppingAnything(apparelDef))
+                {
+                    GravshipDebugUtil.LogMessage($"Skipping {apparelDef.defName} for {pawn.LabelShortCap}: cannot wear.");
+                    continue;
+                }
+
                 pawn.apparel.Wear((Apparel)apparel, dropReplacedApparel: true);
             }
         }

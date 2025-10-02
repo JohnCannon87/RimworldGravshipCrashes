@@ -35,7 +35,7 @@ namespace GravshipCrashes.Sites
             Faction hostileFaction = null;
 
             GravshipDebugUtil.LogMessage("[Generator] Attempting to clear area...");
-            GravshipSpawnUtility.ClearArea(map, usedRect);
+            GravshipSpawnUtility.ClearArea(usedRect, map);
 
             GravshipDebugUtil.LogMessage("[Generator] Adding crash debris...");
             GravshipSpawnUtility.AddCrashScarring(map, usedRect, Rand.Int);
@@ -72,12 +72,14 @@ namespace GravshipCrashes.Sites
             GravshipDebugUtil.LogMessage("[Generator] Applying structure damage...");
             GravshipSpawnUtility.ApplyStructureDamage(
                 map,
+                usedRect, // ✅ pass area
                 settings?.shipStructureDamageRange ?? new FloatRange(0.15f, 0.45f),
                 comp?.StructureDamageSeed ?? Rand.Int);
 
             GravshipDebugUtil.LogMessage("[Generator] Applying thing damage...");
             GravshipSpawnUtility.ApplyThingDamage(
                 map,
+                usedRect, // ✅ pass area
                 settings?.thingDamageRange ?? new FloatRange(0.1f, 0.35f),
                 comp?.ThingDamageSeed ?? Rand.Int);
 

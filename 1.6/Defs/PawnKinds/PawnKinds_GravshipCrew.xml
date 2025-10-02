@@ -16,11 +16,22 @@
 
     <!-- Backstory categories influence skill distribution -->
     <backstoryCategories>
-      <li>Spacer</li>
-      <li>Soldier</li>
-      <li>Officer</li>
+      <li>SpacerCivil</li>
       <li>SpacerMilitary</li>
+      <li>Soldier</li>
+          <li>Pirate</li>
     </backstoryCategories>
+
+    <backstoryFilters>
+      <li>
+        <categories>
+          <li>SpacerCivil</li>
+          <li>SpacerMilitary</li>
+          <li>Soldier</li>
+          <li>Pirate</li>
+        </categories>
+      </li>
+    </backstoryFilters>
 
     <!-- Apparel and weapon preferences -->
     <apparelTags>
