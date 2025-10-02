@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <PawnKindDef>
+    <defName>GravshipCrew</defName>
+    <label>gravship crew member</label>
+    <race>Human</race>
+    <combatPower>120</combatPower>
+
+    <!-- Faction association -->
+    <defaultFactionType>Gravship_Survivors</defaultFactionType>
+
+    <!-- Age range -->
+    <minGenerationAge>20</minGenerationAge>
+    <maxGenerationAge>60</maxGenerationAge>
+
+    <!-- Backstory categories influence skill distribution -->
+    <backstoryCategories>
+      <li>Spacer</li>
+      <li>Soldier</li>
+      <li>Officer</li>
+      <li>SpacerMilitary</li>
+    </backstoryCategories>
+
+    <!-- Apparel and weapon preferences -->
+    <apparelTags>
+      <li>Vacsuit</li>
+      <li>Spacer</li>
+      <li>Military</li>
+    </apparelTags>
+
+    <weaponTags>
+      <li>Gun</li>
+      <li>SpacerGun</li>
+      <li>Ranged</li>
+    </weaponTags>
+
+    <!-- Gear quality and money -->
+    <gearHealthRange>
+      <min>0.8</min>
+      <max>1.0</max>
+    </gearHealthRange>
+    <weaponMoney>
+      <min>200</min>
+      <max>800</max>
+    </weaponMoney>
+    <apparelMoney>
+      <min>300</min>
+      <max>1000</max>
+    </apparelMoney>
+
+    <!-- Required for humanlike pawn kinds -->
+    <initialResistanceRange>
+      <min>0</min>
+      <max>2</max>
+    </initialResistanceRange>
+    <initialWillRange>
+      <min>0</min>
+      <max>2</max>
+    </initialWillRange>
+
+  </PawnKindDef>
+
+</Defs>

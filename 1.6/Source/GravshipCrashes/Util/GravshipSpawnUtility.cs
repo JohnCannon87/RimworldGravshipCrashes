@@ -59,6 +59,96 @@ namespace GravshipCrashes.Util
             return false;
         }
 
+        public static void ClearArea(Map map, CellRect area)
+        {
+            GravshipDebugUtil.LogMessage("[SpawnUtility] Deep-clearing crash site area...");
+
+            foreach (var cell in area.Cells)
+            {
+                if (!cell.InBounds(map)) continue;
+
+                // Destroy all plants, filth, chunks, and items
+                var things = cell.GetThingList(map);
+                for (int i = things.Count - 1; i >= 0; i--)
+                {
+                    var t = things[i];
+                    if (t is Pawn) continue;
+                    if (t.def.category == ThingCategory.Plant ||
+                        t.def.category == ThingCategory.Item ||
+                        t.def.category == ThingCategory.Filth ||
+                        t is Mote ||
+                        t is Blueprint ||
+                        t is Frame)
+                    {
+                        t.Destroy(DestroyMode.Vanish);
+                    }
+                }
+
+                // Optional: reset terrain to basic soil
+                // map.terrainGrid.SetTerrain(cell, TerrainDefOf.Soil);
+            }
+
+            // Global cleanup for plants that might not be in cell lists yet
+            foreach (var plant in map.listerThings.ThingsInGroup(ThingRequestGroup.Plant)
+                         .Where(p => area.Contains(p.Position))
+                         .ToList())
+            {
+                plant.Destroy(DestroyMode.Vanish);
+            }
+
+            GravshipDebugUtil.LogMessage("[SpawnUtility] Crash zone fully cleared.");
+        }
+
+        public static void AddCrashScarring(Map map, CellRect area, int seed)
+        {
+            GravshipDebugUtil.LogMessage("[SpawnUtility] Adding crash scar debris...");
+            Rand.PushState(seed);
+            try
+            {
+                foreach (var cell in area.Cells.InRandomOrder())
+                {
+                    if (!cell.InBounds(map)) continue;
+
+                    // 20% chance: slag chunks
+                    if (Rand.Chance(0.20f))
+                    {
+                        var slag = ThingMaker.MakeThing(ThingDefOf.ChunkSlagSteel);
+                        GenPlace.TryPlaceThing(slag, cell, map, ThingPlaceMode.Near);
+                    }
+
+                    // 10% chance: chemfuel puddle
+                    if (Rand.Chance(0.10f))
+                    {
+                        FilthMaker.TryMakeFilth(cell, map, ThingDefOf.Filth_Fuel, Rand.Range(1, 3));
+                    }
+
+                    // 8% chance: small fire (only if outdoor / not raining)
+                    if (Rand.Chance(0.08f))
+                    {
+                        FireUtility.TryStartFireIn(cell, map, Rand.Range(0.05f, 0.20f), null, null);
+                    }
+
+                    // 15% chance: burn/scorch mark
+                    if (Rand.Chance(0.15f))
+                    {
+                        FilthMaker.TryMakeFilth(cell, map, ThingDefOf.Filth_Ash, Rand.Range(1, 2));
+                    }
+
+                    // 5% chance: scattered steel resource
+                    if (Rand.Chance(0.05f))
+                    {
+                        var steel = ThingMaker.MakeThing(ThingDefOf.Steel);
+                        steel.stackCount = Rand.RangeInclusive(10, 40);
+                        GenPlace.TryPlaceThing(steel, cell, map, ThingPlaceMode.Near);
+                    }
+                }
+            }
+            finally
+            {
+                Rand.PopState();
+            }
+        }
+
         public static bool TryFindSiteTile(out int tile)
         {
             PlanetTile foundTile;
@@ -302,9 +392,18 @@ namespace GravshipCrashes.Util
                     if (building == null || building.Destroyed || building.def == null || !building.def.useHitPoints)
                         continue;
 
-                    // do not damage the Broken Grav Engine
+                    // 🚫 Skip Broken Grav Engine
                     if (IsBrokenGravEngine(building.def))
                         continue;
+
+                    // 🚫 Skip power conduits or transmitters
+                    if (building.TryGetComp<CompPowerTransmitter>() != null ||
+                        building.def.defName.ToLower().Contains("conduit") ||
+                        building.def.thingClass?.Name.ToLower().Contains("power") == true)
+                    {
+                        GravshipDebugUtil.LogMessage($"[SpawnUtility] Skipping structure damage for conduit: {building.LabelCap}");
+                        continue;
+                    }
 
                     var damageFraction = damageRange.RandomInRange;
                     if (Rand.Value < damageFraction)
@@ -326,6 +425,8 @@ namespace GravshipCrashes.Util
             }
         }
 
+
+
         public static void ApplyThingDamage(Map map, FloatRange damageRange, int seed)
         {
             GravshipDebugUtil.LogMessage("[SpawnUtility] Applying thing damage...");
@@ -343,7 +444,19 @@ namespace GravshipCrashes.Util
                     // extra safety: never damage BrokenGravEngine here either
                     if (IsBrokenGravEngine(thing.def)) continue;
 
-                    if (thing.def.category == ThingCategory.Building) continue;
+                    // ✅ Don't damage any power network components (conduits, transmitters, etc.)
+                    if (thing.def.category == ThingCategory.Building)
+                    {
+                        // Skip if this is a conduit or any type of power network piece
+                        if (thing.TryGetComp<CompPower>() != null
+                            || thing.TryGetComp<CompPowerTransmitter>() != null
+                            || thing.def.defName.ToLower().Contains("conduit")
+                            || thing.def.building?.isPowerConduit == true)
+                        {
+                            continue;
+                        }
+                    }
+
 
                     var damageFraction = damageRange.RandomInRange;
                     if (Rand.Value < damageFraction)
@@ -405,14 +518,58 @@ namespace GravshipCrashes.Util
                 parms.techLevel = TechLevel.Spacer;
 
                 var loot = GravshipCrashesDefOf.GravshipCrashLoot.root.Generate(parms);
+
+                // 1️⃣ Find storage buildings in the crash area
+                var storageBuildings = map.listerThings.AllThings
+                    .OfType<Building_Storage>()
+                    .Where(b => area.Contains(b.Position))
+                    .ToList();
+
+                // 2️⃣ Build a list of available storage cells
+                var storageCells = new List<IntVec3>();
+                foreach (var storage in storageBuildings)
+                {
+                    foreach (var c in storage.AllSlotCells())
+                    {
+                        if (c.InBounds(map) && c.Standable(map))
+                            storageCells.Add(c);
+                    }
+                }
+
+                GravshipDebugUtil.LogMessage($"[SpawnUtility] Found {storageBuildings.Count} storage buildings with {storageCells.Count} total storage cells.");
+
+                // 3️⃣ Try to place loot into storage slots first
                 foreach (var thing in loot)
                 {
-                    var cell = area.RandomCell;
-                    if (!cell.InBounds(map))
-                        cell = map.Center;
+                    bool placed = false;
 
-                    GravshipDebugUtil.LogMessage($"[SpawnUtility] Spawning loot: {thing.LabelCap}");
-                    GenPlace.TryPlaceThing(thing, cell, map, ThingPlaceMode.Near);
+                    // Try a random storage cell
+                    storageCells.Shuffle();
+                    foreach (var cell in storageCells)
+                    {
+                        // If storage accepts this item (check Accepts()) — optional but safer
+                        var building = cell.GetEdifice(map) as Building_Storage;
+                        if (building != null && !building.Accepts(thing))
+                            continue;
+
+                        var result = GenPlace.TryPlaceThing(thing, cell, map, ThingPlaceMode.Direct);
+                        if (result != null)
+                        {
+                            GravshipDebugUtil.LogMessage($"[SpawnUtility] Placed {thing.LabelCap} into storage cell at {cell}.");
+                            placed = true;
+                            break;
+                        }
+                    }
+
+                    // 4️⃣ Fallback: place randomly near the ship
+                    if (!placed)
+                    {
+                        var cell = area.RandomCell;
+                        if (!cell.InBounds(map)) cell = map.Center;
+
+                        GravshipDebugUtil.LogMessage($"[SpawnUtility] Placing {thing.LabelCap} on the ground (no storage available).");
+                        GenPlace.TryPlaceThing(thing, cell, map, ThingPlaceMode.Near);
+                    }
                 }
             }
             finally
@@ -420,5 +577,7 @@ namespace GravshipCrashes.Util
                 Rand.PopState();
             }
         }
+
+
     }
 }

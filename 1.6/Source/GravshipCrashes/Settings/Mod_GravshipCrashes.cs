@@ -37,14 +37,14 @@ namespace GravshipCrashes.Settings
             listing.Begin(inRect);
 
             // Storyteller / incident
-            listing.Label("Storyteller".Translate());
+            listing.Label("Storyteller");
             listing.Label("Incident Base Chance: " + Settings.incidentBaseChance.ToStringPercent());
             Settings.incidentBaseChance = listing.Slider(Settings.incidentBaseChance, 0f, 1f);
 
             listing.GapLine();
 
             // Crash damage
-            listing.Label("Crash Damage".Translate());
+            listing.Label("Crash Damage");
             listing.Label("Structural Damage Min: " + Settings.shipStructureDamageRange.min.ToStringPercent());
             Settings.shipStructureDamageRange.min = listing.Slider(Settings.shipStructureDamageRange.min, 0f, 1f);
             listing.Label("Structural Damage Max: " + Settings.shipStructureDamageRange.max.ToStringPercent());
@@ -58,22 +58,16 @@ namespace GravshipCrashes.Settings
             listing.Gap();
 
             // Defenders
-            listing.Label("Defenders".Translate());
+            listing.Label("Defenders");
             listing.Label("Pawn Injury Severity Min: " + Settings.pawnInjurySeverityRange.min.ToStringPercent());
             Settings.pawnInjurySeverityRange.min = listing.Slider(Settings.pawnInjurySeverityRange.min, 0f, 1f);
             listing.Label("Pawn Injury Severity Max: " + Settings.pawnInjurySeverityRange.max.ToStringPercent());
             Settings.pawnInjurySeverityRange.max = listing.Slider(Settings.pawnInjurySeverityRange.max, Settings.pawnInjurySeverityRange.min, 1f);
 
-            listing.IntAdjuster(ref Settings.maxDefenders, 1, 1);
-            listing.Label("Max defenders: " + Settings.maxDefenders);
-
             listing.GapLine();
 
             // Debug logging
             listing.CheckboxLabeled("Enable Logging", ref Settings.debugLogging, "Enable to get logs out to submit for a bug report.");
-
-            listing.GapLine();
-            listing.Label("Available Ships".Translate());
 
             DrawShipSelection(listing);
 

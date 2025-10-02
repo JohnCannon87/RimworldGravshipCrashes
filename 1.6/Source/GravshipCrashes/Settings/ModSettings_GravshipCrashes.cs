@@ -14,13 +14,11 @@ namespace GravshipCrashes.Settings
         private const float MinDamage = 0f;
         private const float MaxDamage = 1f;
 
-        public float incidentBaseChance = 0.4f;
+        public float incidentBaseChance = 0.04f;
 
         public FloatRange shipStructureDamageRange = new FloatRange(0.15f, 0.45f);
         public FloatRange thingDamageRange = new FloatRange(0.1f, 0.35f);
         public FloatRange pawnInjurySeverityRange = new FloatRange(0.1f, 0.4f);
-
-        public int maxDefenders = 6;
 
         public bool debugLogging = false;
 
@@ -73,7 +71,6 @@ namespace GravshipCrashes.Settings
             Scribe_Values.Look(ref pawnInjurySeverityRange.min, "pawnInjurySeverityMin", 0.1f);
             Scribe_Values.Look(ref pawnInjurySeverityRange.max, "pawnInjurySeverityMax", 0.4f);
 
-            Scribe_Values.Look(ref maxDefenders, nameof(maxDefenders), 6);
             Scribe_Values.Look(ref debugLogging, nameof(debugLogging), true);
 
             Scribe_Collections.Look(ref shipAllowances, "shipAllowances", LookMode.Value, LookMode.Value);
@@ -102,7 +99,6 @@ namespace GravshipCrashes.Settings
             pawnInjurySeverityRange.min = Mathf.Clamp(pawnInjurySeverityRange.min, MinDamage, MaxDamage);
             pawnInjurySeverityRange.max = Mathf.Clamp(pawnInjurySeverityRange.max, pawnInjurySeverityRange.min, MaxDamage);
 
-            maxDefenders = Mathf.Clamp(maxDefenders, 1, 30);
         }
 
         /// <summary>

@@ -55,7 +55,7 @@ namespace GravshipCrashes.Incident
 
             // Notify player
             string letterLabel = "Crashed Gravship";
-            string letterText = "A hostile gravship has crashed nearby, the survivors will eventually rebuild and leave but until then they will defend their ship with their lives.".Translate();
+            string letterText = "A hostile gravship has crashed nearby, the survivors will eventually rebuild and leave but until then they will defend their ship with their lives.";
             SendStandardLetter(letterLabel, letterText, LetterDefOf.PositiveEvent, parms, site);
 
             return true;

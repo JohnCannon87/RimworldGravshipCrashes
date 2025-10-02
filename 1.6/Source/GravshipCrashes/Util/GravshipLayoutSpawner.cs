@@ -12,12 +12,19 @@ namespace GravshipCrashes.Util
     /// </summary>
     public static class GravshipLayoutSpawner
     {
+        /// <summary>
+        /// Spawns the gravship layout and returns true if anything spawned. 
+        /// Also returns the hostile faction used for spawning.
+        /// </summary>
         public static bool TrySpawnLayout(
             Map map,
             ShipLayoutDefV2 layout,
             IntVec3 center,
-            List<Thing> placedThings)
+            List<Thing> placedThings,
+            out Faction spawnedFaction)
         {
+            spawnedFaction = null;
+
             if (map == null)
             {
                 GravshipDebugUtil.LogWarning("[Spawner] Map is NULL.");
@@ -37,12 +44,16 @@ namespace GravshipCrashes.Util
             }
 
             GravshipDebugUtil.LogMessage(
-                string.Format("[Spawner] Spawning layout: {0} ({1}x{2})", layout.defName, layout.width, layout.height));
+                $"[Spawner] Spawning layout: {layout.defName} ({layout.width}x{layout.height})");
 
             int halfWidth = layout.width / 2;
             int halfHeight = layout.height / 2;
             int spawnedCount = 0;
             List<IntVec3> processedCells = new List<IntVec3>();
+
+            // ✅ Resolve or create the hostile faction
+            var faction = DefenderGenFactionHelper();
+            spawnedFaction = faction;
 
             // 1) Foundations
             GravshipDebugUtil.LogMessage("[Spawner] Pass 1: Foundations");
@@ -84,7 +95,7 @@ namespace GravshipCrashes.Util
                 }
             }
 
-            // 3) Things
+            // 3) Things (buildings, turrets, etc.)
             GravshipDebugUtil.LogMessage("[Spawner] Pass 3: Things");
             for (int z = 0; z < layout.rows.Count; z++)
             {
@@ -99,7 +110,7 @@ namespace GravshipCrashes.Util
                     IntVec3 pos = new IntVec3(center.x - halfWidth + x, 0, center.z - halfHeight + z);
                     if (!pos.InBounds(map)) continue;
 
-                    SpawnThings(cell, map, pos, placedThings, ref spawnedCount);
+                    SpawnThings(cell, map, pos, placedThings, faction, ref spawnedCount);
                     processedCells.Add(pos);
                 }
             }
@@ -108,19 +119,16 @@ namespace GravshipCrashes.Util
             GravshipDebugUtil.LogMessage("[Spawner] Pass 4: Roofs");
             BuildRoofs(map, processedCells);
 
-            // 5) Place the Broken Grav Engine at exporter coords
+            // 5) Place the Broken Grav Engine
             if (layout.gravEngineX >= 0 && layout.gravEngineZ >= 0)
             {
                 IntVec3 enginePos = new IntVec3(center.x - halfWidth + layout.gravEngineX, 0,
                                                 center.z - halfHeight + layout.gravEngineZ);
                 if (enginePos.InBounds(map))
                 {
-                    GravshipDebugUtil.LogMessage(string.Format(
-                        "[Spawner] Placing BrokenGravEngine at layout coords ({0},{1}) -> map {2}",
-                        layout.gravEngineX, layout.gravEngineZ, enginePos));
+                    GravshipDebugUtil.LogMessage($"[Spawner] Placing BrokenGravEngine at layout coords ({layout.gravEngineX},{layout.gravEngineZ}) -> map {enginePos}");
 
-                    // default facing; adjust if you later add rot to the exporter
-                    SpawnBrokenGravEngineAt(map, enginePos, Rot4.North);
+                    SpawnBrokenGravEngineAt(map, enginePos, Rot4.North, faction);
                 }
                 else
                 {
@@ -132,13 +140,13 @@ namespace GravshipCrashes.Util
                 GravshipDebugUtil.LogMessage("[Spawner] Layout has no gravEngineX/Z; skipping BrokenGravEngine placement.");
             }
 
-            GravshipDebugUtil.LogMessage(string.Format(
-                "[Spawner] Layout spawn complete. Placed {0} objects total.", spawnedCount));
+            GravshipDebugUtil.LogMessage($"[Spawner] Layout spawn complete. Placed {spawnedCount} objects total.");
             return spawnedCount > 0;
         }
 
         // ---------- Spawn Helpers ----------
-        private static void SpawnBrokenGravEngineAt(Map map, IntVec3 cell, Rot4 rot)
+
+        private static void SpawnBrokenGravEngineAt(Map map, IntVec3 cell, Rot4 rot, Faction faction)
         {
             var brokenDef = DefDatabase<ThingDef>.GetNamedSilentFail("BrokenGravEngine");
             if (brokenDef == null)
@@ -149,9 +157,10 @@ namespace GravshipCrashes.Util
                 return;
             }
 
-            GravshipDebugUtil.LogMessage(string.Format("[SpawnUtility] Spawning BrokenGravEngine at {0}", cell));
+            GravshipDebugUtil.LogMessage($"[SpawnUtility] Spawning BrokenGravEngine at {cell}");
             var wreck = ThingMaker.MakeThing(brokenDef);
-            GenSpawn.Spawn(wreck, cell, map, rot, WipeMode.Vanish);
+            var spawned = GenSpawn.Spawn(wreck, cell, map, rot, WipeMode.Vanish);
+            spawned?.SetFaction(faction);
         }
 
         private static void SpawnFoundationAsTerrain(ShipCell cell, Map map, IntVec3 pos, ref int spawnedCount)
@@ -161,14 +170,12 @@ namespace GravshipCrashes.Util
             if (terrain == null && string.Equals(cell.foundationDef, "Substructure", System.StringComparison.OrdinalIgnoreCase))
             {
                 terrain = TerrainDefOf.MetalTile;
-                GravshipDebugUtil.LogMessage(string.Format(
-                    "[Spawner] Substructure replaced with MetalTile at {0}", pos));
+                GravshipDebugUtil.LogMessage($"[Spawner] Substructure replaced with MetalTile at {pos}");
             }
 
             if (terrain == null)
             {
-                GravshipDebugUtil.LogWarning(string.Format(
-                    "[Spawner] Unknown foundation '{0}' at {1}", cell.foundationDef, pos));
+                GravshipDebugUtil.LogWarning($"[Spawner] Unknown foundation '{cell.foundationDef}' at {pos}");
                 return;
             }
 
@@ -181,8 +188,7 @@ namespace GravshipCrashes.Util
             TerrainDef terrain = DefDatabase<TerrainDef>.GetNamedSilentFail(cell.terrainDef);
             if (terrain == null)
             {
-                GravshipDebugUtil.LogWarning(string.Format(
-                    "[Spawner] Unknown terrain '{0}' at {1}", cell.terrainDef, pos));
+                GravshipDebugUtil.LogWarning($"[Spawner] Unknown terrain '{cell.terrainDef}' at {pos}");
                 return;
             }
 
@@ -190,7 +196,7 @@ namespace GravshipCrashes.Util
             spawnedCount++;
         }
 
-        private static void SpawnThings(ShipCell cell, Map map, IntVec3 pos, List<Thing> placedThings, ref int spawnedCount)
+        private static void SpawnThings(ShipCell cell, Map map, IntVec3 pos, List<Thing> placedThings, Faction faction, ref int spawnedCount)
         {
             for (int i = 0; i < cell.things.Count; i++)
             {
@@ -200,8 +206,7 @@ namespace GravshipCrashes.Util
                 ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(thingEntry.defName);
                 if (def == null)
                 {
-                    GravshipDebugUtil.LogWarning(string.Format(
-                        "[Spawner] Unknown thing '{0}' at {1}", thingEntry.defName, pos));
+                    GravshipDebugUtil.LogWarning($"[Spawner] Unknown thing '{thingEntry.defName}' at {pos}");
                     continue;
                 }
 
@@ -213,9 +218,41 @@ namespace GravshipCrashes.Util
 
                 Thing thing = ThingMaker.MakeThing(def, stuff);
                 Rot4 rot = new Rot4(thingEntry.rotInteger);
-                GenSpawn.Spawn(thing, pos, map, rot, WipeMode.Vanish, false);
+                var spawned = GenSpawn.Spawn(thing, pos, map, rot, WipeMode.Vanish, false);
 
-                if (placedThings != null) placedThings.Add(thing);
+                // ✅ Assign faction to everything that can have one
+                if (spawned?.def.CanHaveFaction == true)
+                {
+                    spawned.SetFaction(faction);
+                }
+
+                // ✅ Assign faction to everything (turrets, doors, furniture, etc.)
+                if (spawned.Faction != faction && spawned.def.CanHaveFaction)
+                {
+                    spawned.SetFaction(faction);
+                }
+
+                // ✅ NEW: If the thing uses fuel, give it a random initial amount (30% - 70%)
+                var refuelable = spawned.TryGetComp<CompRefuelable>();
+                if (refuelable != null && refuelable.Props.fuelCapacity > 0f)
+                {
+                    float minFuel = refuelable.Props.fuelCapacity * 0.3f;
+                    float maxFuel = refuelable.Props.fuelCapacity * 0.7f;
+                    float chosenFuel = Rand.Range(minFuel, maxFuel);
+
+                    refuelable.Refuel(chosenFuel);
+                    GravshipDebugUtil.LogMessage($"[Spawner] Set initial fuel for {spawned.LabelCap} to {chosenFuel}/{refuelable.Props.fuelCapacity}");
+                }
+
+                // ✅ If the thing uses power, turn it on
+                var power = spawned.TryGetComp<CompPowerTrader>();
+                if (power != null)
+                {
+                    power.PowerOn = true;
+                    GravshipDebugUtil.LogMessage($"[Spawner] Set initial power state ON for {spawned.LabelCap}");
+                }
+
+                placedThings?.Add(spawned);
                 spawnedCount++;
             }
         }
@@ -227,9 +264,8 @@ namespace GravshipCrashes.Util
             HashSet<IntVec3> visited = new HashSet<IntVec3>();
             Queue<IntVec3> queue = new Queue<IntVec3>();
 
-            for (int idx = 0; idx < cells.Count; idx++)
+            foreach (var start in cells)
             {
-                var start = cells[idx];
                 if (!start.InBounds(map) || visited.Contains(start)) continue;
                 if (HoldsRoof(map, start)) continue;
 
@@ -245,22 +281,21 @@ namespace GravshipCrashes.Util
 
                     if (IsMapEdge(c, map)) touchesEdge = true;
 
-                    for (int d = 0; d < GenAdj.CardinalDirections.Length; d++)
+                    foreach (var n in GenAdj.CardinalDirections)
                     {
-                        IntVec3 n = c + GenAdj.CardinalDirections[d];
-                        if (!n.InBounds(map) || visited.Contains(n)) continue;
-                        if (HoldsRoof(map, n)) continue;
+                        IntVec3 next = c + n;
+                        if (!next.InBounds(map) || visited.Contains(next)) continue;
+                        if (HoldsRoof(map, next)) continue;
 
-                        visited.Add(n);
-                        queue.Enqueue(n);
+                        visited.Add(next);
+                        queue.Enqueue(next);
                     }
                 }
 
                 if (touchesEdge) continue;
 
-                for (int r = 0; r < region.Count; r++)
+                foreach (var c in region)
                 {
-                    var c = region[r];
                     if (!c.Roofed(map))
                     {
                         map.roofGrid.SetRoof(c, RoofDefOf.RoofConstructed);
@@ -290,9 +325,8 @@ namespace GravshipCrashes.Util
             var min = new IntVec3(int.MaxValue, 0, int.MaxValue);
             var max = new IntVec3(int.MinValue, 0, int.MinValue);
 
-            for (int i = 0; i < placedThings.Count; i++)
+            foreach (var thing in placedThings)
             {
-                var thing = placedThings[i];
                 if (thing == null) continue;
                 if (thing.Position.x < min.x) min.x = thing.Position.x;
                 if (thing.Position.z < min.z) min.z = thing.Position.z;
@@ -304,6 +338,19 @@ namespace GravshipCrashes.Util
             int height = Mathf.Max(10, max.z - min.z + 10);
 
             return CellRect.CenteredOn(map.Center, width, height).ClipInsideMap(map);
+        }
+
+        // ✅ Small helper: get the gravship survivors faction from DefenderGen
+        private static Faction DefenderGenFactionHelper()
+        {
+            var def = GravshipCrashesDefOf.Gravship_Survivors;
+            var faction = Find.FactionManager.FirstFactionOfDef(def);
+            if (faction == null)
+            {
+                faction = FactionGenerator.NewGeneratedFaction(new FactionGeneratorParms(def));
+                Find.FactionManager.Add(faction);
+            }
+            return faction;
         }
     }
 }
