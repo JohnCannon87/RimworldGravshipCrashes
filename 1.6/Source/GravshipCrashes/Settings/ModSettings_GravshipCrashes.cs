@@ -19,6 +19,7 @@ namespace GravshipCrashes.Settings
         public FloatRange shipStructureDamageRange = new FloatRange(0.15f, 0.45f);
         public FloatRange thingDamageRange = new FloatRange(0.1f, 0.35f);
         public FloatRange pawnInjurySeverityRange = new FloatRange(0.1f, 0.4f);
+        public float gravPanelDestructionChance = 0.25f;
 
         public bool debugLogging = false;
 
@@ -76,6 +77,8 @@ namespace GravshipCrashes.Settings
 
             Scribe_Collections.Look(ref shipAllowances, "shipAllowances", LookMode.Value, LookMode.Value);
 
+            Scribe_Values.Look(ref gravPanelDestructionChance, nameof(gravPanelDestructionChance), 0.25f);
+
             if (shipAllowances == null)
             {
                 shipAllowances = new Dictionary<string, bool>();
@@ -96,6 +99,8 @@ namespace GravshipCrashes.Settings
 
             pawnInjurySeverityRange.min = Mathf.Clamp(pawnInjurySeverityRange.min, MinDamage, MaxDamage);
             pawnInjurySeverityRange.max = Mathf.Clamp(pawnInjurySeverityRange.max, pawnInjurySeverityRange.min, MaxDamage);
+
+            gravPanelDestructionChance = Mathf.Clamp01(gravPanelDestructionChance);
         }
 
         public void SynchroniseShips(IEnumerable<string> defNames)

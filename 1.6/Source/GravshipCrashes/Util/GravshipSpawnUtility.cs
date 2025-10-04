@@ -503,6 +503,86 @@ namespace GravshipCrashes.Util
                 Rand.PopState();
             }
         }
+
+        public static void RemoveExtraGravPanels(Map map, CellRect area, float removalFraction)
+        {
+            var brokenTerrain = DefDatabase<TerrainDef>.GetNamedSilentFail("BrokenSubstructure");
+            if (brokenTerrain == null)
+            {
+                GravshipDebugUtil.LogWarning("[SpawnUtility] BrokenSubstructure terrain not found, aborting panel removal.");
+                return;
+            }
+
+            GravshipDebugUtil.LogMessage($"[SpawnUtility] Attempting to remove {removalFraction:P0} of uncovered gravpanels...");
+
+            var allPanels = new List<IntVec3>();
+
+            // 1️⃣ Collect all gravpanel terrain cells
+            foreach (var cell in area.Cells)
+            {
+                if (!cell.InBounds(map)) continue;
+
+                var terrain = map.terrainGrid.TerrainAt(cell);
+                var foundation = map.terrainGrid.FoundationAt(cell);
+                if (terrain?.defName.ToLowerInvariant().Contains("gravpanel") == true
+                    || terrain?.tags?.Contains("Substructure") == true) // tag check if you use it
+                {
+                    GravshipDebugUtil.LogMessage($"[SpawnUtility] Found Terrain at {cell}.");
+                    allPanels.Add(cell);
+                }
+                if (foundation?.defName.ToLowerInvariant().Contains("gravpanel") == true
+                    || foundation?.tags?.Contains("Substructure") == true) // tag check if you use it
+                {
+                    GravshipDebugUtil.LogMessage($"[SpawnUtility] Found Foundation at {cell}.");
+                    allPanels.Add(cell);
+                }
+            }
+
+            // 2️⃣ Only keep uncovered ones (no buildings/items over them)
+            var uncovered = allPanels
+                .Where(cell =>
+                {
+                    var things = cell.GetThingList(map);
+                    return !things.Any(t =>
+                        t.def.category != ThingCategory.Filth &&
+                        !t.def.defName.ToLowerInvariant().Contains("gravpanel"));
+                })
+                .ToList();
+
+            GravshipDebugUtil.LogMessage($"[SpawnUtility] Found {allPanels.Count} total gravpanels, {uncovered.Count} uncovered.");
+
+            if (uncovered.Count == 0)
+            {
+                GravshipDebugUtil.LogMessage("[SpawnUtility] No uncovered gravpanels found, skipping removal.");
+                return;
+            }
+
+            // 3️⃣ Decide how many to remove
+            int removeCount = Mathf.RoundToInt(uncovered.Count * removalFraction);
+            if (removeCount <= 0)
+            {
+                GravshipDebugUtil.LogMessage("[SpawnUtility] Removal fraction resulted in 0 panels to remove.");
+                return;
+            }
+
+            // 4️⃣ Shuffle and take a random subset
+            uncovered.Shuffle();
+            var toRemove = uncovered.Take(removeCount).ToList();
+
+            // 5️⃣ Replace the terrain with soil (or any terrain you want)
+            foreach (var cell in toRemove)
+            {
+                GravshipDebugUtil.LogMessage($"[SpawnUtility] Removing gravpanel terrain at {cell}.");
+                //map.terrainGrid.RemoveFoundation(cell, false);
+                map.terrainGrid.SetFoundation(cell, brokenTerrain);
+            }
+
+            GravshipDebugUtil.LogMessage($"[SpawnUtility] Removed {toRemove.Count} uncovered gravpanels.");
+        }
+
+
+
+
         public static void SpawnLoot(Map map, CellRect area, int seed)
         {
             if (GravshipCrashesDefOf.GravshipCrashLoot == null)

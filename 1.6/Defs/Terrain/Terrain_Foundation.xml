@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <TerrainDef ParentName="FloorBase">
+    <defName>BrokenSubstructure</defName>
+    <label>broken gravship substructure</label>
+    <description>A broken gravship substructure, now worthless.</description>
+    <texturePath>Terrain/Surfaces/Substructure/BrokenSubstructure</texturePath>
+    <fertility>0</fertility>
+    <edgeType>Hard</edgeType>
+    <renderPrecedence>399</renderPrecedence>
+    <constructEffect>ConstructMetal</constructEffect>
+    <isPaintable>true</isPaintable>
+    <isFoundation>true</isFoundation>
+    <preventCraters>true</preventCraters>
+    <affordances>
+      <li>Substructure</li>
+    </affordances>
+    <statBases>
+      <WorkToBuild>60000</WorkToBuild>
+      <Flammability>0</Flammability>
+      <CleaningTimeFactor>0.9</CleaningTimeFactor>
+    </statBases>
+    <costList>
+      <Steel>4</Steel>
+    </costList>
+    <requireInspectedGravEngine>true</requireInspectedGravEngine>
+    <terrainAffordanceNeeded>Walkable</terrainAffordanceNeeded>
+    <resourcesFractionWhenDeconstructed>1</resourcesFractionWhenDeconstructed>
+    <tags>
+      <li>Substructure</li>
+    </tags>
+  </TerrainDef>
+
+</Defs>

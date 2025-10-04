@@ -81,6 +81,9 @@ namespace GravshipCrashes.Settings
             listing.Label("Structural Damage Max: " + Settings.shipStructureDamageRange.max.ToStringPercent());
             Settings.shipStructureDamageRange.max = listing.Slider(Settings.shipStructureDamageRange.max, Settings.shipStructureDamageRange.min, 1f);
 
+            listing.Label("Gravpanel Destruction Chance: " + Settings.gravPanelDestructionChance.ToStringPercent());
+            Settings.gravPanelDestructionChance = listing.Slider(Settings.gravPanelDestructionChance, 0f, 1f);
+
             listing.Label("Thing Damage Min: " + Settings.thingDamageRange.min.ToStringPercent());
             Settings.thingDamageRange.min = listing.Slider(Settings.thingDamageRange.min, 0f, 1f);
             listing.Label("Thing Damage Max: " + Settings.thingDamageRange.max.ToStringPercent());

@@ -83,6 +83,9 @@ namespace GravshipCrashes.Sites
                 settings?.thingDamageRange ?? new FloatRange(0.1f, 0.35f),
                 comp?.ThingDamageSeed ?? Rand.Int);
 
+            GravshipDebugUtil.LogMessage("[Generator] removing gravpanels...");
+            GravshipSpawnUtility.RemoveExtraGravPanels(map, usedRect, settings.gravPanelDestructionChance);
+
             GravshipDebugUtil.LogMessage("[Generator] Scattering debris...");
             GravshipSpawnUtility.ScatterDebris(
                 map, usedRect, comp?.StructureDamageSeed ?? Rand.Int);
