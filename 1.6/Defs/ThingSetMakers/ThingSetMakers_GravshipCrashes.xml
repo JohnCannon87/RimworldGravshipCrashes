@@ -72,214 +72,208 @@
           <thingSetMaker Class="ThingSetMaker_RandomOption">
             <options>
               <li>
-          <weight>0.30</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Gun_AncientArmoredTurret</li>
-                  <li>Gun_AssaultRifle</li>
-                  <li>Gun_AssaultRifle_Unique</li>
-                  <li>Gun_AutocannonTurret</li>
-                  <li>Gun_Autopistol</li>
-                  <li>Gun_BeamGraser</li>
-                  <li>Gun_BeamRepeater</li>
-                  <li>Gun_BeamRepeater_Unique</li>
-                  <li>Gun_BoltActionRifle</li>
-                  <li>Gun_BoltActionRifle_Unique</li>
-                  <li>Gun_ChainShotgun</li>
-                  <li>Gun_ChainShotgun_Unique</li>
-                  <li>Gun_ChargeBlasterHeavy</li>
-                  <li>Gun_ChargeBlasterHeavyTurret</li>
-                  <li>Gun_ChargeBlasterTurret</li>
-                  <li>Gun_ChargeLance</li>
-                  <li>Gun_ChargeLance_Unique</li>
-                  <li>Gun_ChargeRifle</li>
-                  <li>Gun_ChargeRifle_Unique</li>
-                  <li>Gun_HeavySMG</li>
-                  <li>Gun_HeavySMG_Unique</li>
-                  <li>Gun_HellcatRifle</li>
-                  <li>Gun_HellcatRifle_Unique</li>
-                  <li>Gun_HellsphereCannon</li>
-                </thingDefs>
-              </filter>
-              <countRange>1~2</countRange>
-            </fixedParams>
-          </thingSetMaker>
+                <weight>0.30</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>Gun_AssaultRifle</li>
+                        <li>Gun_AssaultRifle_Unique</li>
+                        <li>Gun_Autopistol</li>
+                        <li>Gun_BeamGraser</li>
+                        <li>Gun_BeamRepeater</li>
+                        <li>Gun_BeamRepeater_Unique</li>
+                        <li>Gun_BoltActionRifle</li>
+                        <li>Gun_BoltActionRifle_Unique</li>
+                        <li>Gun_ChainShotgun</li>
+                        <li>Gun_ChainShotgun_Unique</li>
+                        <li>Gun_ChargeBlasterHeavy</li>
+                        <li>Gun_ChargeLance</li>
+                        <li>Gun_ChargeLance_Unique</li>
+                        <li>Gun_ChargeRifle</li>
+                        <li>Gun_ChargeRifle_Unique</li>
+                        <li>Gun_HeavySMG</li>
+                        <li>Gun_HeavySMG_Unique</li>
+                        <li MayRequire="Ludeon.RimWorld.Anomaly">Gun_HellcatRifle</li>
+                        <li MayRequire="Ludeon.RimWorld.Anomaly">Gun_HellcatRifle_Unique</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1~2</countRange>
+                  </fixedParams>
+                </thingSetMaker>
               </li>
               <li>
-          <weight>0.25</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Apparel_AdvancedHelmet</li>
-                  <li>Apparel_ArmorCataphract</li>
-                  <li>Apparel_ArmorCataphractPhoenix</li>
-                  <li>Apparel_ArmorCataphractPrestige</li>
-                  <li>Apparel_ArmorHelmetCataphract</li>
-                  <li>Apparel_ArmorHelmetCataphractPrestige</li>
-                  <li>Apparel_ArmorHelmetMechCommander</li>
-                  <li>Apparel_ArmorHelmetMechlordHelmet</li>
-                  <li>Apparel_ArmorHelmetRecon</li>
-                  <li>Apparel_ArmorHelmetReconPrestige</li>
-                  <li>Apparel_ArmorMarineGrenadier</li>
-                  <li>Apparel_ArmorMarineHelmetPrestige</li>
-                  <li>Apparel_ArmorMarinePrestige</li>
-                  <li>Apparel_ArmorRecon</li>
-                  <li>Apparel_ArmorReconPrestige</li>
-                  <li>Apparel_Duster</li>
-                  <li>Apparel_FlakJacket</li>
-                  <li>Apparel_FlakPants</li>
-                  <li>Apparel_FlakVest</li>
-                  <li>Apparel_KidHelmet</li>
-                  <li>Apparel_PlateArmor</li>
-                  <li>Apparel_PowerArmorHelmet</li>
-                  <li>Apparel_PsychicFoilHelmet</li>
-                  <li>Apparel_PsyfocusHelmet</li>
-                  <li>ComponentSpacer</li>
-                </thingDefs>
-              </filter>
-              <countRange>1~2</countRange>
-            </fixedParams>
-          </thingSetMaker>
+                <weight>0.25</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>Apparel_AdvancedHelmet</li>
+                        <li>Apparel_ArmorCataphract</li>
+                        <li>Apparel_ArmorCataphractPhoenix</li>
+                        <li>Apparel_ArmorCataphractPrestige</li>
+                        <li>Apparel_ArmorHelmetCataphract</li>
+                        <li>Apparel_ArmorHelmetCataphractPrestige</li>
+                        <li>Apparel_ArmorHelmetMechCommander</li>
+                        <li>Apparel_ArmorHelmetMechlordHelmet</li>
+                        <li>Apparel_ArmorHelmetRecon</li>
+                        <li>Apparel_ArmorHelmetReconPrestige</li>
+                        <li>Apparel_ArmorMarineGrenadier</li>
+                        <li>Apparel_ArmorMarineHelmetPrestige</li>
+                        <li>Apparel_ArmorMarinePrestige</li>
+                        <li>Apparel_ArmorRecon</li>
+                        <li>Apparel_ArmorReconPrestige</li>
+                        <li>Apparel_Duster</li>
+                        <li>Apparel_FlakJacket</li>
+                        <li>Apparel_FlakPants</li>
+                        <li>Apparel_FlakVest</li>
+                        <li>Apparel_KidHelmet</li>
+                        <li>Apparel_PlateArmor</li>
+                        <li>Apparel_PowerArmorHelmet</li>
+                        <li>Apparel_PsychicFoilHelmet</li>
+                        <li>Apparel_PsyfocusHelmet</li>
+                        <li>ComponentSpacer</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1~2</countRange>
+                  </fixedParams>
+                </thingSetMaker>
               </li>
               <li>
-          <weight>0.20</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Plasteel</li>
-                  <li>Uranium</li>
-                  <li>Silver</li>
-                </thingDefs>
-              </filter>
-              <countRange>20~50</countRange>
-            </fixedParams>
-          </thingSetMaker>
+                <weight>0.20</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>Plasteel</li>
+                        <li>Uranium</li>
+                        <li>Silver</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>20~50</countRange>
+                  </fixedParams>
+                </thingSetMaker>
               </li>
               <li>
-          <weight>0.03</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Gun_ChargeBlasterHeavy</li>
-                  <li>Gun_ChargeBlasterHeavyTurret</li>
-                  <li>Gun_ChargeBlasterTurret</li>
-                  <li>Gun_ChargeLance</li>
-                  <li>Gun_ChargeLance_Unique</li>
-                  <li>Gun_ChargeRifle</li>
-                  <li>Gun_ChargeRifle_Unique</li>
-                </thingDefs>
-              </filter>
-              <countRange>1~1</countRange>
-            </fixedParams>
-          </thingSetMaker>
+                <weight>0.03</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>Gun_ChargeBlasterHeavy</li>
+                        <li>Gun_ChargeBlasterHeavyTurret</li>
+                        <li>Gun_ChargeBlasterTurret</li>
+                        <li>Gun_ChargeLance</li>
+                        <li>Gun_ChargeLance_Unique</li>
+                        <li>Gun_ChargeRifle</li>
+                        <li>Gun_ChargeRifle_Unique</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1~1</countRange>
+                  </fixedParams>
+                </thingSetMaker>
               </li>
               <li>
-          <weight>0.03</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Apparel_ArmorCataphract</li>
-                  <li>Apparel_ArmorCataphractPhoenix</li>
-                  <li>Apparel_ArmorCataphractPrestige</li>
-                  <li>Apparel_ArmorHelmetCataphract</li>
-                  <li>Apparel_ArmorHelmetCataphractPrestige</li>
-                  <li>Apparel_ArmorHelmetRecon</li>
-                  <li>Apparel_ArmorHelmetReconPrestige</li>
-                  <li>Apparel_ArmorMarineGrenadier</li>
-                  <li>Apparel_ArmorMarineHelmetPrestige</li>
-                  <li>Apparel_ArmorMarinePrestige</li>
-                  <li>Apparel_ArmorRecon</li>
-                  <li>Apparel_ArmorReconPrestige</li>
-                </thingDefs>
-              </filter>
-              <countRange>1~1</countRange>
-            </fixedParams>
-          </thingSetMaker>
+                <weight>0.03</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>Apparel_ArmorCataphract</li>
+                        <li>Apparel_ArmorCataphractPhoenix</li>
+                        <li>Apparel_ArmorCataphractPrestige</li>
+                        <li>Apparel_ArmorHelmetCataphract</li>
+                        <li>Apparel_ArmorHelmetCataphractPrestige</li>
+                        <li>Apparel_ArmorHelmetRecon</li>
+                        <li>Apparel_ArmorHelmetReconPrestige</li>
+                        <li>Apparel_ArmorMarineGrenadier</li>
+                        <li>Apparel_ArmorMarineHelmetPrestige</li>
+                        <li>Apparel_ArmorMarinePrestige</li>
+                        <li>Apparel_ArmorRecon</li>
+                        <li>Apparel_ArmorReconPrestige</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1~1</countRange>
+                  </fixedParams>
+                </thingSetMaker>
               </li>
-              <li ifModActive="Royalty">
-          <weight>0.01</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>AIPersonaCore</li>
-                </thingDefs>
-              </filter>
-              <countRange>1~1</countRange>
-            </fixedParams>
-          </thingSetMaker>
+              <li MayRequire="Ludeon.RimWorld.Royalty">
+                <weight>0.01</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>AIPersonaCore</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1~1</countRange>
+                  </fixedParams>
+                </thingSetMaker>
               </li>
-              <li ifModActive="Biotech">
-          <weight>0.01</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>AncientToxifierGenerator</li>
-                  <li>GeneAssembler</li>
-                  <li>GeneBank</li>
-                  <li>GeneExtractor</li>
-                  <li>GeneProcessor</li>
-                  <li>Genepack</li>
-                  <li>HemogenAmplifier</li>
-                  <li>HemogenPack</li>
-                  <li>Mote_XenogermImplantation</li>
-                  <li>ToxifierGenerator</li>
-                  <li>Xenogerm</li>
-                </thingDefs>
-              </filter>
-              <countRange>1~1</countRange>
-            </fixedParams>
-          </thingSetMaker>
+              <li MayRequire="Ludeon.RimWorld.Biotech">
+                <weight>0.01</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>AncientToxifierGenerator</li>
+                        <li>GeneAssembler</li>
+                        <li>GeneBank</li>
+                        <li>GeneExtractor</li>
+                        <li>GeneProcessor</li>
+                        <li>Genepack</li>
+                        <li>HemogenAmplifier</li>
+                        <li>HemogenPack</li>
+                        <li>Mote_XenogermImplantation</li>
+                        <li>ToxifierGenerator</li>
+                        <li>Xenogerm</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1~1</countRange>
+                  </fixedParams>
+                </thingSetMaker>
               </li>
-              <li ifModActive="Anomaly">
-          <weight>0.01</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>GrayFleshSample</li>
-                </thingDefs>
-              </filter>
-              <countRange>1~1</countRange>
-            </fixedParams>
-          </thingSetMaker>
+              <li MayRequire="Ludeon.RimWorld.Anomaly">
+                <weight>0.01</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>GrayFleshSample</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1~1</countRange>
+                  </fixedParams>
+                </thingSetMaker>
               </li>
-              <li ifModActive="Odyssey">
-          <weight>0.01</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>AncientGravEngine</li>
-                  <li>AncientGravReactor</li>
-                  <li>AncientSealedContainer_GravshipUpgrade</li>
-                  <li>AncientSealedCrate_Gravlite</li>
-                  <li>CerebrexCore</li>
-                  <li>CerebrexCore_Destroyed</li>
-                  <li>GravAnchor</li>
-                  <li>GravEngine</li>
-                  <li>GravFieldExtender</li>
-                  <li>Gravcore</li>
-                  <li>GravcorePowerCell</li>
-                  <li>GravlitePanel</li>
-                </thingDefs>
-              </filter>
-              <countRange>1~1</countRange>
-            </fixedParams>
-          </thingSetMaker>
+              <li>
+                <weight>0.01</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>AncientGravEngine</li>
+                        <li>AncientGravReactor</li>
+                        <li>AncientSealedContainer_GravshipUpgrade</li>
+                        <li>AncientSealedCrate_Gravlite</li>
+                        <li>CerebrexCore</li>
+                        <li>CerebrexCore_Destroyed</li>
+                        <li>GravAnchor</li>
+                        <li>GravEngine</li>
+                        <li>GravFieldExtender</li>
+                        <li>Gravcore</li>
+                        <li>GravcorePowerCell</li>
+                        <li>GravlitePanel</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1~1</countRange>
+                  </fixedParams>
+                </thingSetMaker>
               </li>
-            </options>
-          </thingSetMaker>
-        </li>
-      </options>
+            </options> 
+          </thingSetMaker>  
+        </li> 
+      </options> 
     </root>
   </ThingSetMakerDef>
-
 </Defs>

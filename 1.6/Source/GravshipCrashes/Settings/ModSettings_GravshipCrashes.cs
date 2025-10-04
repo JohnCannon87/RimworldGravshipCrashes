@@ -24,9 +24,6 @@ namespace GravshipCrashes.Settings
 
         private Dictionary<string, bool> shipAllowances = new Dictionary<string, bool>();
 
-        /// <summary>
-        /// Returns true if the provided ship defName is currently enabled.
-        /// </summary>
         public bool AllowsShip(string defName)
         {
             if (string.IsNullOrEmpty(defName))
@@ -43,17 +40,21 @@ namespace GravshipCrashes.Settings
             return allowed;
         }
 
-        /// <summary>
-        /// Sets the allowance state for a ship defName.
-        /// </summary>
         public void SetAllowsShip(string defName, bool allowed)
         {
             if (string.IsNullOrEmpty(defName))
             {
                 return;
             }
-
             shipAllowances[defName] = allowed;
+        }
+
+        public void SetAllShips(bool allowed)
+        {
+            foreach (var key in shipAllowances.Keys.ToList())
+            {
+                shipAllowances[key] = allowed;
+            }
         }
 
         public IEnumerable<KeyValuePair<string, bool>> ShipAllowances => shipAllowances;
@@ -83,9 +84,6 @@ namespace GravshipCrashes.Settings
             ClampValues();
         }
 
-        /// <summary>
-        /// Ensures settings remain within acceptable bounds.
-        /// </summary>
         private void ClampValues()
         {
             incidentBaseChance = Mathf.Clamp01(incidentBaseChance);
@@ -98,12 +96,8 @@ namespace GravshipCrashes.Settings
 
             pawnInjurySeverityRange.min = Mathf.Clamp(pawnInjurySeverityRange.min, MinDamage, MaxDamage);
             pawnInjurySeverityRange.max = Mathf.Clamp(pawnInjurySeverityRange.max, pawnInjurySeverityRange.min, MaxDamage);
-
         }
 
-        /// <summary>
-        /// Ensures the allowance table is populated for all discovered ships.
-        /// </summary>
         public void SynchroniseShips(IEnumerable<string> defNames)
         {
             if (defNames == null)

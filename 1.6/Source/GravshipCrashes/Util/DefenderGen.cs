@@ -165,8 +165,12 @@ namespace GravshipCrashes.Util
             pawn.equipment?.DestroyAllEquipment();
 
             var weaponDefs = DefDatabase<ThingDef>.AllDefs
-                .Where(td => td.IsWeapon && td.techLevel >= TechLevel.Industrial)
+                .Where(td => td.IsWeapon)
+                .Where(td => td.equipmentType == EquipmentType.Primary) // exclude turret mounts
+                .Where(td => td.techLevel >= TechLevel.Industrial)
+                .Where(td => td.weaponTags != null && td.weaponTags.Any()) // ensures it's a "real" weapon
                 .ToList();
+
 
             if (weaponDefs.TryRandomElement(out var weapon))
             {

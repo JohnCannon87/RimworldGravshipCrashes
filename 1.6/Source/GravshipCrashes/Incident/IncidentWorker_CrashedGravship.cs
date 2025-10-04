@@ -36,29 +36,28 @@ namespace GravshipCrashes.Incident
             var settings = Mod_GravshipCrashes.Instance?.Settings;
             var allowedShips = ShipLayouts.Allowed(settings).ToList();
             if (allowedShips.Count == 0)
+            {
+                Log.Error("[GravshipCrashes] Tried to fire crash incident, but no ships are enabled in settings!");
                 return false;
+            }
 
             int tile;
             if (!GravshipSpawnUtility.TryFindSiteTile(out tile))
                 return false;
 
-            // Pick a layout and create the site
             ShipLayoutDefV2 chosen = allowedShips.RandomElement();
             var site = GravshipSpawnUtility.CreateSite(tile);
 
-            // Store defName on the site comp; seeds handled inside
             GravshipSpawnUtility.ConfigureSiteMetadata(site, chosen.defName);
-
-            // Timeout & add to world
             GravshipSpawnUtility.ConfigureTimeout(site, new IntRange(12, 20));
             Find.WorldObjects.Add(site);
 
-            // Notify player
             string letterLabel = "Crashed Gravship";
             string letterText = "A hostile gravship has crashed nearby, the survivors will eventually rebuild and leave but until then they will defend their ship with their lives.";
             SendStandardLetter(letterLabel, letterText, LetterDefOf.PositiveEvent, parms, site);
 
             return true;
         }
+
     }
 }
