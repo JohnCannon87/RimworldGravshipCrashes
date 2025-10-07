@@ -6,6 +6,7 @@ using UnityEngine;
 using Verse;
 using Verse.AI.Group;
 using GravshipExport;
+using System;
 
 namespace GravshipCrashes.Util
 {
@@ -168,7 +169,7 @@ namespace GravshipCrashes.Util
                 .Where(td => td.IsWeapon)
                 .Where(td => td.equipmentType == EquipmentType.Primary) // exclude turret mounts
                 .Where(td => td.techLevel >= TechLevel.Industrial)
-                .Where(td => td.weaponTags != null && td.weaponTags.Any()) // ensures it's a "real" weapon
+                .Where(td => td.weaponTags != null && td.weaponTags.Any() && noWeaponTagsContainTurretOrMechanoid(td.weaponTags)) // ensures it's a "real" weapon
                 .ToList();
 
 
@@ -197,6 +198,16 @@ namespace GravshipCrashes.Util
 
                 pawn.apparel.Wear((Apparel)apparel, dropReplacedApparel: true);
             }
+        }
+
+        private static bool noWeaponTagsContainTurretOrMechanoid(List<string> weaponTags)
+        {
+            if (weaponTags == null || weaponTags.Count == 0)
+                return true;
+
+            return !weaponTags.Any(tag =>
+                tag.IndexOf("Turret", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                tag.IndexOf("Mechanoid", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         private static Faction EnsureFaction()
