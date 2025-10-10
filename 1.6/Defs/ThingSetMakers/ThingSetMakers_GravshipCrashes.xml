@@ -109,20 +109,20 @@
                     <filter>
                       <thingDefs>
                         <li>Apparel_AdvancedHelmet</li>
-                        <li>Apparel_ArmorCataphract</li>
-                        <li>Apparel_ArmorCataphractPhoenix</li>
-                        <li>Apparel_ArmorCataphractPrestige</li>
-                        <li>Apparel_ArmorHelmetCataphract</li>
-                        <li>Apparel_ArmorHelmetCataphractPrestige</li>
-                        <li>Apparel_ArmorHelmetMechCommander</li>
-                        <li>Apparel_ArmorHelmetMechlordHelmet</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphract</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphractPhoenix</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphractPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetCataphract</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetCataphractPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_ArmorHelmetMechCommander</li>
+                        <li MayRequire="Ludeon.RimWorld.Biotech">Apparel_ArmorHelmetMechlordHelmet</li>
                         <li>Apparel_ArmorHelmetRecon</li>
-                        <li>Apparel_ArmorHelmetReconPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetReconPrestige</li>
                         <li>Apparel_ArmorMarineGrenadier</li>
-                        <li>Apparel_ArmorMarineHelmetPrestige</li>
-                        <li>Apparel_ArmorMarinePrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarineHelmetPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarinePrestige</li>
                         <li>Apparel_ArmorRecon</li>
-                        <li>Apparel_ArmorReconPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorReconPrestige</li>
                         <li>Apparel_Duster</li>
                         <li>Apparel_FlakJacket</li>
                         <li>Apparel_FlakPants</li>
@@ -179,18 +179,18 @@
                   <fixedParams>
                     <filter>
                       <thingDefs>
-                        <li>Apparel_ArmorCataphract</li>
-                        <li>Apparel_ArmorCataphractPhoenix</li>
-                        <li>Apparel_ArmorCataphractPrestige</li>
-                        <li>Apparel_ArmorHelmetCataphract</li>
-                        <li>Apparel_ArmorHelmetCataphractPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphract</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphractPhoenix</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorCataphractPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetCataphract</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetCataphractPrestige</li>
                         <li>Apparel_ArmorHelmetRecon</li>
-                        <li>Apparel_ArmorHelmetReconPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorHelmetReconPrestige</li>
                         <li>Apparel_ArmorMarineGrenadier</li>
-                        <li>Apparel_ArmorMarineHelmetPrestige</li>
-                        <li>Apparel_ArmorMarinePrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarineHelmetPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorMarinePrestige</li>
                         <li>Apparel_ArmorRecon</li>
-                        <li>Apparel_ArmorReconPrestige</li>
+                        <li MayRequire="Ludeon.RimWorld.Royalty">Apparel_ArmorReconPrestige</li>
                       </thingDefs>
                     </filter>
                     <countRange>1~1</countRange>
