@@ -574,6 +574,10 @@ namespace GravshipCrashes.Util
             {
                 GravshipDebugUtil.LogMessage($"[SpawnUtility] Removing gravpanel terrain at {cell}.");
                 //map.terrainGrid.RemoveFoundation(cell, false);
+                if (map.terrainGrid.CanRemoveTopLayerAt(cell))
+                {
+                    map.terrainGrid.RemoveTopLayer(cell, false);
+                }                
                 map.terrainGrid.SetFoundation(cell, brokenTerrain);
             }
 
