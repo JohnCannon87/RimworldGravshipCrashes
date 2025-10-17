@@ -13,6 +13,8 @@
     <isPaintable>true</isPaintable>
     <isFoundation>true</isFoundation>
     <preventCraters>true</preventCraters>
+    <designationCategory />
+    <designatorDropdown />
     <affordances>
       <li>Substructure</li>
     </affordances>
